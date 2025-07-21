@@ -1,0 +1,28 @@
+# Source files
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Config files
+xmcp.config.ts
+tsconfig.json
+biome.json
+.env*
+
+# Development
+node_modules/
+.xmcp/
+*.log
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Documentation (keep README)
+PUBLISHING.md
+docs/dev/
+
+# Test files
+*.test.*
+*.spec.*

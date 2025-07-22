@@ -24,8 +24,10 @@ A Model Context Protocol (MCP) server for fal.ai that enables natural language i
 
 ## 📚 Documentation
 
-- **[Setup Guide](./docs/SETUP.md)** - Detailed installation and configuration
-- **[Example Workflows](./docs/EXAMPLES.md)** - Powerful agentic combinations
+- **[Setup Guide](./docs/guides/setup.md)** - Complete installation and configuration
+- **[API Reference](./docs/guides/api-reference.md)** - All available tools and configuration
+- **[Example Workflows](./docs/examples/workflows.md)** - Powerful agentic combinations
+- **[Troubleshooting](./docs/guides/troubleshooting.md)** - Common issues and solutions
 
 ## Installation
 

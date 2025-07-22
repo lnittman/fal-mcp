@@ -1,35 +1,45 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  extractImageUrl,
+  extractVideoUrl,
+  formatError,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 // Define available workflow steps
 const workflowSteps = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("generate"),
     prompt: z.string(),
-    model: z.enum(["fal-ai/flux/dev", "fal-ai/flux/schnell"]).default("fal-ai/flux/dev"),
+    model: z.string().default("fal-ai/flux/dev"),
   }),
   z.object({
     type: z.literal("removeBackground"),
-    model: z.enum(["fal-ai/birefnet", "fal-ai/imageutils/rembg"]).default("fal-ai/birefnet"),
+    model: z.string().default("fal-ai/birefnet"),
   }),
   z.object({
     type: z.literal("upscale"),
     scaleFactor: z.number().min(2).max(8).default(4),
-    model: z.enum(["fal-ai/aura-sr", "fal-ai/clarity-upscaler"]).default("fal-ai/aura-sr"),
+    model: z.string().default("fal-ai/aura-sr"),
   }),
   z.object({
     type: z.literal("transform"),
     prompt: z.string(),
     strength: z.number().min(0).max(1).default(0.8),
+    model: z.string().default("fal-ai/flux-general/image-to-image"),
   }),
   z.object({
     type: z.literal("animate"),
     motionPrompt: z.string().optional(),
     duration: z.number().min(1).max(6).default(3),
+    model: z.string().default("fal-ai/stable-video-diffusion/image-to-video"),
   }),
 ]);
 
@@ -53,12 +63,11 @@ export const metadata: ToolMetadata = {
 
 export default async function workflowChain(params: InferSchema<typeof schema>) {
   const { inputImage, steps, outputPath, saveIntermediates } = params;
+  const toolName = 'workflowChain';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize fal client once for all steps
+    initializeFalClient(toolName);
 
     // Validate workflow
     const firstStep = steps[0];
@@ -74,82 +83,123 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
       const step = steps[i];
       
       try {
+        // Validate model for steps that have models
+        if ('model' in step && step.model) {
+          await validateModel(step.model, toolName);
+        }
+        
+        debug(toolName, `Executing step ${i + 1}: ${step.type}`);
+        
         switch (step.type) {
           case "generate": {
-            const status = await fal.subscribe("fal-ai/flux/dev", {
-              input: {
-                prompt: step.prompt,
-                image_size: "square",
-              },
-              logs: false,
-            });
+            const modelId = step.model || "fal-ai/flux/dev";
+            const input: any = {
+              prompt: step.prompt,
+            };
             
-            if (!status.images?.[0]?.url) {
-              throw new Error("Generation failed");
+            // Add model-specific parameters
+            if (modelId.includes("flux")) {
+              input.image_size = "square";
+            } else if (modelId.includes("recraft")) {
+              input.style = "realistic_image";
             }
             
-            currentResult = status.images[0].url;
+            const response = await submitToFal(modelId, input, toolName);
+            currentResult = extractImageUrl(response, toolName);
             break;
           }
           
           case "removeBackground": {
-            const input = step.model === "fal-ai/birefnet" 
-              ? { image_url: currentResult, refine_foreground: true }
+            const input = step.model.includes("birefnet") 
+              ? { 
+                  image_url: currentResult, 
+                  model: "u2net",
+                  return_mask: false,
+                  output_format: "png",
+                }
               : { image_url: currentResult };
             
-            const status = await fal.subscribe(step.model, {
-              input,
-              logs: false,
-            });
-            
-            currentResult = status.image?.url || status.images?.[0]?.url || "";
-            if (!currentResult) throw new Error("Background removal failed");
+            const response = await submitToFal(step.model, input, toolName);
+            currentResult = extractImageUrl(response, toolName);
             break;
           }
           
           case "upscale": {
-            const input = step.model === "fal-ai/aura-sr"
-              ? { image_url: currentResult, upscaling_factor: step.scaleFactor }
-              : { image_url: currentResult, scale: step.scaleFactor };
+            let input: any = {};
+            const modelId = step.model || "fal-ai/aura-sr";
             
-            const status = await fal.subscribe(step.model, {
-              input,
-              logs: false,
-            });
+            if (modelId.includes("aura-sr")) {
+              input = { image_url: currentResult, scale: step.scaleFactor };
+            } else if (modelId.includes("clarity-upscaler")) {
+              input = { image_url: currentResult, scale: step.scaleFactor, overlapping_factor: 0.5 };
+            } else if (modelId.includes("pasd")) {
+              input = { 
+                image_url: currentResult, 
+                upscaling_factor: step.scaleFactor,
+                prompt: "A high quality, realistic image",
+                style_preset: "realistic"
+              };
+            } else if (modelId.includes("chain-of-zoom")) {
+              input = { 
+                image_url: currentResult,
+                num_steps: Math.ceil(Math.log2(step.scaleFactor)),
+              };
+            } else {
+              input = { image_url: currentResult, scale: step.scaleFactor };
+            }
             
-            currentResult = status.image?.url || status.images?.[0]?.url || "";
-            if (!currentResult) throw new Error("Upscaling failed");
+            const response = await submitToFal(modelId, input, toolName);
+            currentResult = extractImageUrl(response, toolName);
             break;
           }
           
           case "transform": {
-            const status = await fal.subscribe("fal-ai/flux-general/image-to-image", {
-              input: {
-                image_url: currentResult,
-                prompt: step.prompt,
-                strength: step.strength,
-              },
-              logs: false,
-            });
+            const modelId = step.model || "fal-ai/flux-general/image-to-image";
+            const input = {
+              image_url: currentResult,
+              prompt: step.prompt,
+              strength: step.strength,
+            };
             
-            currentResult = status.images?.[0]?.url || "";
-            if (!currentResult) throw new Error("Transformation failed");
+            const response = await submitToFal(modelId, input, toolName);
+            currentResult = extractImageUrl(response, toolName);
             break;
           }
           
           case "animate": {
-            const status = await fal.subscribe("fal-ai/wan-effects", {
-              input: {
+            const modelId = step.model || "fal-ai/stable-video-diffusion/image-to-video";
+            let input: any = {};
+            
+            if (modelId.includes("stable-video-diffusion")) {
+              input = {
+                image_url: currentResult,
+                motion_bucket_id: 127,
+                fps: 7,
+                num_frames: 25,
+              };
+            } else if (modelId.includes("wan-effects") || modelId.includes("wan-i2v")) {
+              input = {
                 image_url: currentResult,
                 motion_prompt: step.motionPrompt,
                 duration: step.duration,
                 fps: 24,
-              },
-              logs: false,
-            });
+              };
+            } else if (modelId.includes("wan-pro")) {
+              input = {
+                image_url: currentResult,
+                prompt: step.motionPrompt || "Animate the image",
+                duration: step.duration,
+              };
+            } else {
+              input = {
+                image_url: currentResult,
+                prompt: step.motionPrompt,
+                duration: step.duration,
+              };
+            }
             
-            currentResult = status.video?.url || "";
-            if (!currentResult) throw new Error("Animation failed");
+            const response = await submitToFal(modelId, input, toolName);
+            currentResult = extractVideoUrl(response, toolName);
             break;
           }
         }
@@ -161,6 +211,8 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           url: currentResult,
         });
         
+        debug(toolName, `Step ${i + 1} completed: ${step.type}`, { url: currentResult });
+        
         // Save intermediate if requested
         if (saveIntermediates && outputPath) {
           const resolvedPath = outputPath.startsWith('~') 
@@ -171,14 +223,16 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           await fs.ensureDir(dir);
           
           const baseName = path.basename(resolvedPath, path.extname(resolvedPath));
-          const ext = currentResult.includes("video") ? ".mp4" : ".png";
+          const ext = currentResult.includes("video") || currentResult.includes(".mp4") ? ".mp4" : ".png";
           const stepPath = path.join(dir, `${baseName}_step${i + 1}_${step.type}${ext}`);
           
           const response = await fetch(currentResult);
           const buffer = Buffer.from(await response.arrayBuffer());
           await fs.writeFile(stepPath, buffer);
+          debug(toolName, `Saved intermediate result to: ${stepPath}`);
         }
       } catch (error: any) {
+        debug(toolName, `Step ${i + 1} (${step.type}) failed:`, error);
         throw new Error(`Step ${i + 1} (${step.type}) failed: ${error.message}`);
       }
     }
@@ -207,10 +261,6 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
       ],
     };
   } catch (error: any) {
-    return {
-      content: [
-        { type: "text", text: `Workflow error: ${error.message}` },
-      ],
-    };
+    return formatError(error, 'Workflow error');
   }
 }

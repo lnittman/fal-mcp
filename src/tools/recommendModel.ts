@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
+import { formatError } from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 // Model database with capabilities and recommendations
 const modelDatabase = {
@@ -122,6 +124,10 @@ export const metadata: ToolMetadata = {
 
 export default async function recommendModel(params: InferSchema<typeof schema>) {
   const { task, priority, budget, details } = params;
+  const toolName = 'recommendModel';
+  
+  try {
+    debug(toolName, `Finding recommendations for: ${task}`, { priority, budget });
   
   // Analyze task to determine category
   const taskLower = task.toLowerCase();
@@ -244,9 +250,12 @@ export default async function recommendModel(params: InferSchema<typeof schema>)
     recommendations.push("Balanced approach gives good results with reasonable speed.");
   }
   
-  return {
-    content: [
-      { type: "text", text: recommendations.join("\n") },
-    ],
-  };
+    return {
+      content: [
+        { type: "text", text: recommendations.join("\n") },
+      ],
+    };
+  } catch (error: any) {
+    return formatError(error, 'Error generating recommendations');
+  }
 }

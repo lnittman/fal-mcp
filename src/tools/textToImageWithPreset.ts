@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  formatMediaResult,
+  formatError,
+  extractImageUrl,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 // Define available presets
 const presets = {
@@ -55,9 +63,9 @@ export const schema = {
     .optional()
     .describe("Style preset to apply"),
   additionalDetails: z.string().optional().describe("Additional details or modifiers to add to the prompt"),
-  model: z.enum(["fal-ai/flux/dev", "fal-ai/flux/schnell", "fal-ai/flux/pro"])
+  model: z.string()
     .default("fal-ai/flux/dev")
-    .describe("Model to use for generation"),
+    .describe("Model ID for image generation. Any fal-ai model that supports text-to-image. Popular: flux/dev, flux/schnell, flux/pro"),
   imageSize: z.enum(["square", "landscape_4_3", "portrait_4_3", "landscape_16_9", "portrait_16_9"])
     .default("square")
     .describe("Aspect ratio for the generated image"),
@@ -78,12 +86,12 @@ export const metadata: ToolMetadata = {
 
 export default async function textToImageWithPreset(params: InferSchema<typeof schema>) {
   const { subject, preset, additionalDetails, model, imageSize, numInferenceSteps, guidanceScale } = params;
+  const toolName = 'textToImageWithPreset';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
     // Build the prompt
     let prompt = subject;
@@ -91,12 +99,15 @@ export default async function textToImageWithPreset(params: InferSchema<typeof s
     // Add preset modifiers if selected
     if (preset && presets[preset]) {
       prompt = `${subject}, ${presets[preset].modifiers}`;
+      debug(toolName, `Using preset: ${presets[preset].name}`);
     }
     
     // Add any additional details
     if (additionalDetails) {
       prompt = `${prompt}, ${additionalDetails}`;
     }
+    
+    debug(toolName, `Final prompt: ${prompt}`);
 
     // Prepare input
     const input: any = {
@@ -113,47 +124,13 @@ export default async function textToImageWithPreset(params: InferSchema<typeof s
     }
 
     // Submit to fal.ai
-    const status = await fal.subscribe(model, {
-      input,
-      logs: false,
-    });
+    const response = await submitToFal(model, input, toolName);
+    
+    // Extract image URL
+    const imageUrl = extractImageUrl(response, toolName);
 
-    if (!status.images || status.images.length === 0) {
-      throw new Error("No image generated");
-    }
-
-    return {
-      content: [
-        { type: "text", text: status.images[0].url },
-      ],
-    };
+    return formatMediaResult(imageUrl);
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    } else if (statusCode === 422 || errorMessage.includes('max_new_tokens')) {
-      errorMessage = 'The prompt is too long. Please try a shorter description.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error generating image${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error generating image with preset');
   }
 }

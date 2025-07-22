@@ -3,6 +3,8 @@ import { type InferSchema, type ToolMetadata } from "xmcp";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
+import { formatError } from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the image to save"),
@@ -25,8 +27,10 @@ export const metadata: ToolMetadata = {
 
 export default async function saveImage(params: InferSchema<typeof schema>) {
   const { imageUrl, outputPath, width, height, format } = params;
+  const toolName = 'saveImage';
   
   try {
+    debug(toolName, `Saving image from URL to: ${outputPath}`);
     // Resolve output path (handle ~ for home)
     let resolvedPath: string;
     if (outputPath.startsWith('~')) {
@@ -57,18 +61,15 @@ export default async function saveImage(params: InferSchema<typeof schema>) {
 
     const stats = await fs.stat(resolvedPath);
     const sizeKB = (stats.size / 1024).toFixed(1);
+    
+    debug(toolName, `Image saved successfully`, { path: resolvedPath, sizeKB });
 
     return {
       content: [
-        { type: "text", text: `✅ Saved image to: ${resolvedPath}` },
-        { type: "text", text: `📊 Size: ${sizeKB} KB${width || height ? ` (Note: Resizing not implemented)` : ''}` },
+        { type: "text", text: `Saved image to: ${resolvedPath} (${sizeKB} KB)` },
       ],
     };
   } catch (error: any) {
-    return {
-      content: [
-        { type: "text", text: `❌ Error saving image: ${error.message}` },
-      ],
-    };
+    return formatError(error, 'Error saving image');
   }
 }

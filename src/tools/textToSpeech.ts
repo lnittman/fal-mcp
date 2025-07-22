@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  formatMediaResult,
+  formatError,
+  extractAudioUrl,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 export const schema = {
   text: z.string().describe("Text to convert to speech"),
@@ -10,11 +18,7 @@ export const schema = {
   ])
     .default("nova")
     .describe("Voice to use for speech"),
-  model: z.enum([
-    "fal-ai/text-to-speech",
-    "fal-ai/wizmodel-v2",
-    "fal-ai/tortoise-tts"
-  ])
+  model: z.string()
     .default("fal-ai/text-to-speech")
     .describe("Speech synthesis model"),
   speed: z.number().min(0.5).max(2).default(1).describe("Speech speed (0.5=slow, 2=fast)"),
@@ -39,70 +43,61 @@ export const metadata: ToolMetadata = {
 
 export default async function textToSpeech(params: InferSchema<typeof schema>) {
   const { text, voice, model, speed, emotion, language } = params;
+  const toolName = 'textToSpeech';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
-    // Prepare input
-    const input: any = {
-      text,
-      voice,
-      speed,
-      language,
-    };
+    // Prepare input based on model
+    let input: any = {};
+    
+    if (model.includes("text-to-speech")) {
+      input = {
+        text,
+        voice,
+        speed,
+        language,
+      };
+    } else if (model.includes("wizmodel")) {
+      input = {
+        text,
+        speaker: voice,
+        speed,
+        language,
+      };
+    } else if (model.includes("tortoise-tts")) {
+      input = {
+        text,
+        voice,
+        preset: "fast",
+      };
+    } else {
+      // Generic TTS model input
+      input = {
+        text,
+        voice,
+        speed,
+        language,
+      };
+    }
 
     // Add emotion if specified and model supports it
     if (emotion && emotion !== "neutral") {
       input.emotion = emotion;
     }
+    
+    debug(toolName, `Generating speech for text: "${text.substring(0, 50)}..."`, { voice, language, speed });
 
     // Submit to fal.ai
-    const status = await fal.subscribe(model, {
-      input,
-      logs: false,
-    });
+    const response = await submitToFal(model, input, toolName);
 
-    if (!status.audio || !status.audio.url) {
-      throw new Error("No audio generated");
-    }
+    // Extract audio URL
+    const audioUrl = extractAudioUrl(response, toolName);
 
-    // Calculate approximate duration
-    const wordCount = text.split(/\s+/).length;
-    const approxDuration = Math.round((wordCount / 150) * 60 / speed);
-
-    return {
-      content: [
-        { type: "text", text: status.audio.url },
-      ],
-    };
+    return formatMediaResult(audioUrl);
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error generating speech${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error generating speech');
   }
 }

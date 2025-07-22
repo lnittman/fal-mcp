@@ -1,16 +1,23 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
 import * as fs from "fs-extra";
 import * as path from "path";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  formatMediaResult,
+  formatError,
+  extractImageUrl,
+} from "../utils/tool-base";
 
 export const schema = {
   imageUrl: z.string().optional().describe("URL of the input image to transform"),
   imagePath: z.string().optional().describe("Local file path of the input image to transform"),
   prompt: z.string().describe("Transformation prompt (e.g., 'convert to pixel art', 'make it look like a watercolor painting', 'add glitter effects')"),
-  model: z.enum(["fal-ai/flux/dev/image-to-image", "fal-ai/flux-general", "fal-ai/kontext"])
+  model: z.string()
     .default("fal-ai/flux/dev/image-to-image")
-    .describe("Model for image transformation"),
+    .describe("Model ID for image transformation. Any fal-ai model that supports image-to-image is accepted. Popular: flux/dev/image-to-image, flux-pro/kontext, flux-general"),
   strength: z.number().min(0).max(1).default(0.8).describe("Transformation strength (0=no change, 1=complete transformation)"),
   maskUrl: z.string().optional().describe("Optional mask URL for selective editing"),
   referenceImage: z.string().optional().describe("Optional reference image URL for style transfer"),
@@ -29,6 +36,7 @@ export const metadata: ToolMetadata = {
 
 export default async function imageToImage(params: InferSchema<typeof schema>) {
   const { imageUrl, imagePath, prompt, model, strength, maskUrl, referenceImage } = params;
+  const toolName = 'imageToImage';
   
   try {
     // Validate input
@@ -38,10 +46,10 @@ export default async function imageToImage(params: InferSchema<typeof schema>) {
     if (imageUrl && imagePath) {
       throw new Error("Only one of imageUrl or imagePath should be provided");
     }
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
     // Handle local image upload
     let actualImageUrl = imageUrl;
@@ -66,11 +74,6 @@ export default async function imageToImage(params: InferSchema<typeof schema>) {
       prompt,
       strength,
     };
-    
-    // Debug logging
-    console.error(`[imageToImage] Using model: ${model}`);
-    console.error(`[imageToImage] Input prompt: ${prompt}`);
-    console.error(`[imageToImage] Strength: ${strength}`);
 
     // Add optional parameters
     if (maskUrl) {
@@ -81,50 +84,14 @@ export default async function imageToImage(params: InferSchema<typeof schema>) {
       input.reference_image = referenceImage;
     }
 
-    // Use subscribe instead of queue for better reliability
-    console.error(`[imageToImage] Calling fal.subscribe with model: ${model}`);
-    const status = await fal.subscribe(model, {
-      input,
-      logs: false,
-    });
-
-    if (!status.images || status.images.length === 0) {
-      throw new Error("No images generated");
-    }
-
-    // Log for debugging
-    console.error(`[imageToImage] Generated image URL: ${status.images[0].url}`);
+    // Submit to fal.ai
+    const response = await submitToFal(model, input, toolName);
     
-    return {
-      content: [
-        { type: "text", text: status.images[0].url },
-      ],
-    };
+    // Extract image URL
+    const resultUrl = extractImageUrl(response, toolName);
+    
+    return formatMediaResult(resultUrl);
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error transforming image${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error transforming image');
   }
 }

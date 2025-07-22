@@ -1,16 +1,23 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  extractImageUrl,
+  formatError,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 export const schema = {
   directory: z.string().describe("Directory path containing images (use ~ for home directory)"),
   actionPrompt: z.string().describe("Transformation to apply to all images (e.g., 'convert to pixel art', 'make it look vintage', 'add neon glow')"),
-  model: z.enum(["fal-ai/flux-general/image-to-image", "fal-ai/kontext"])
+  model: z.string()
     .default("fal-ai/flux-general/image-to-image")
-    .describe("Model to use for processing"),
+    .describe("Model ID for image processing. Any fal-ai model that supports image-to-image. Popular: flux-general/image-to-image, flux-pro/kontext"),
   strength: z.number().min(0).max(1).default(0.8).describe("Transformation strength"),
   outputSuffix: z.string().default("_processed").describe("Suffix for output files"),
   outputFormat: z.enum(["png", "jpg", "webp"]).default("png").describe("Output image format"),
@@ -29,12 +36,12 @@ export const metadata: ToolMetadata = {
 
 export default async function batchProcessImages(params: InferSchema<typeof schema>) {
   const { directory, actionPrompt, model, strength, outputSuffix, outputFormat } = params;
+  const toolName = 'batchProcessImages';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
     // Resolve directory path (handle ~ for home)
     const resolvedDir = directory.startsWith('~') 
@@ -53,7 +60,7 @@ export default async function batchProcessImages(params: InferSchema<typeof sche
     if (imageFiles.length === 0) {
       return {
         content: [
-          { type: "text", text: `ℹ️ No image files found in ${resolvedDir}` },
+          { type: "text", text: `No image files found in ${resolvedDir}` },
         ],
       };
     }
@@ -70,24 +77,26 @@ export default async function batchProcessImages(params: InferSchema<typeof sche
         const buffer = await fs.readFile(inputPath);
         const base64 = buffer.toString('base64');
         const mimeType = file.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        const imageUrl = `data:${mimeType};base64,${base64}`;
+        
+        // Prepare input based on model
+        let input: any = {
+          image_url: imageUrl,
+          prompt: actionPrompt,
+          strength: strength,
+        };
+        
+        debug(toolName, `Processing ${file} with prompt: ${actionPrompt}`);
         
         // Submit to fal.ai
-        const status = await fal.subscribe(model, {
-          input: {
-            image_url: `data:${mimeType};base64,${base64}`,
-            prompt: actionPrompt,
-            strength,
-          },
-          logs: false,
-        });
+        const response = await submitToFal(model, input, toolName);
         
-        if (!status.images || status.images.length === 0) {
-          throw new Error("No output generated");
-        }
+        // Extract result URL
+        const resultUrl = extractImageUrl(response, toolName);
 
         // Download processed image
-        const response = await fetch(status.images[0].url);
-        const arrayBuffer = await response.arrayBuffer();
+        const downloadResponse = await fetch(resultUrl);
+        const arrayBuffer = await downloadResponse.arrayBuffer();
         
         // Generate output filename
         const baseName = path.basename(file, path.extname(file));
@@ -98,8 +107,10 @@ export default async function batchProcessImages(params: InferSchema<typeof sche
         await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
         
         processedFiles.push(outputFileName);
+        debug(toolName, `Successfully processed ${file}`);
       } catch (error: any) {
         errors.push(`${file}: ${error.message}`);
+        debug(toolName, `Error processing ${file}:`, error);
       }
     }
 
@@ -109,36 +120,14 @@ export default async function batchProcessImages(params: InferSchema<typeof sche
       summary += ` (${errors.length} errors)`;
     }
     
+    debug(toolName, `Batch processing complete:`, { processedCount: processedFiles.length, errorCount: errors.length });
+    
     return {
       content: [
         { type: "text", text: summary },
       ],
     };
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error in batch processing${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error in batch processing');
   }
 }

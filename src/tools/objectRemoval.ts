@@ -1,15 +1,23 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as os from "os";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  formatMediaResult,
+  formatError,
+  extractImageUrl,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 export const schema = {
   imageUrl: z.string().optional().describe("URL of the input image to process. Accepts direct URLs or data URLs"),
   imagePath: z.string().optional().describe("Local file path of the input image. Supports ~ for home directory. Either imageUrl or imagePath must be provided"),
   maskUrl: z.string().describe("URL of a mask image defining removal areas. White pixels = remove, black pixels = keep. Use external tools to generate masks first"),
-  model: z.enum([
-    "fal-ai/imageutils/lama",
-    "fal-ai/stable-diffusion-v3-medium-diffusers-inpainting"
-  ])
+  model: z.string()
     .default("fal-ai/imageutils/lama")
     .describe("Model selection: 'imageutils/lama' for automatic inpainting (best for general removal), 'stable-diffusion' for creative replacement with custom prompts"),
   dilateAmount: z.number().min(0).max(50).default(10).describe("Pixels to expand the mask area for cleaner edges. Higher values remove more context around objects"),
@@ -54,12 +62,12 @@ EXAMPLES:
 
 export default async function objectRemoval(params: InferSchema<typeof schema>) {
   const { imageUrl, imagePath, model, maskUrl, dilateAmount, backgroundPrompt } = params;
+  const toolName = 'objectRemoval';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
     // Validate input
     if (!imageUrl && !imagePath) {
@@ -69,14 +77,15 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
     // Handle local file
     let inputUrl = imageUrl;
     if (imagePath && !imageUrl) {
-      const fs = await import("fs-extra");
-      const path = await import("path");
-      const os = await import("os");
-      
       // Resolve path (handle ~ for home)
       const resolvedPath = imagePath.startsWith('~') 
         ? path.join(os.homedir(), imagePath.slice(1))
         : path.resolve(imagePath);
+      
+      // Check if file exists
+      if (!await fs.pathExists(resolvedPath)) {
+        throw new Error(`File not found: ${resolvedPath}`);
+      }
       
       // Read and convert to base64
       const buffer = await fs.readFile(resolvedPath);
@@ -91,9 +100,8 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
 
     // Prepare input based on model
     let input: any = {};
-    let modelId = model;
     
-    if (model === "fal-ai/imageutils/lama") {
+    if (model.includes("lama")) {
       // LAMA model input
       input = {
         image_url: inputUrl,
@@ -101,7 +109,7 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
         dilate_mask: dilateAmount > 0,
         dilate_amount: dilateAmount,
       };
-    } else if (model === "fal-ai/stable-diffusion-v3-medium-diffusers-inpainting") {
+    } else if (model.includes("stable-diffusion") && model.includes("inpainting")) {
       // Stable Diffusion inpainting input
       input = {
         image_url: inputUrl,
@@ -112,54 +120,25 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
         guidance_scale: 7.5,
         num_inference_steps: 25,
       };
+    } else {
+      // Generic inpainting model
+      input = {
+        image_url: inputUrl,
+        mask_url: maskUrl,
+        prompt: backgroundPrompt,
+      };
     }
+    
+    debug(toolName, `Removing objects with model ${model}`);
 
     // Submit to fal.ai
-    const status = await fal.subscribe(modelId, {
-      input,
-      logs: false,
-    });
+    const response = await submitToFal(model, input, toolName);
 
     // Extract result URL
-    let resultUrl: string;
-    if (status.image?.url) {
-      resultUrl = status.image.url;
-    } else if (status.images?.[0]?.url) {
-      resultUrl = status.images[0].url;
-    } else {
-      throw new Error("No output generated");
-    }
+    const resultUrl = extractImageUrl(response, toolName);
 
-    return {
-      content: [
-        { type: "text", text: resultUrl },
-      ],
-    };
+    return formatMediaResult(resultUrl);
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error removing object${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error removing object');
   }
 }

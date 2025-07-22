@@ -1,18 +1,22 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
+import * as fs from "fs-extra";
+import * as path from "path";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  formatMediaResult,
+  formatError,
+  extractImageUrl,
+} from "../utils/tool-base";
 
 export const schema = {
   imageUrl: z.string().optional().describe("URL of the input image to upscale"),
   imagePath: z.string().optional().describe("Local file path of the input image to upscale"),
-  model: z.enum([
-    "fal-ai/aura-sr",
-    "fal-ai/clarity-upscaler",
-    "fal-ai/pasd",
-    "fal-ai/chain-of-zoom"
-  ])
+  model: z.string()
     .default("fal-ai/aura-sr")
-    .describe("Upscaling model - aura-sr for general use, clarity for high fidelity, pasd for realistic, chain-of-zoom for extreme upscaling"),
+    .describe("Model ID for upscaling. Use listModels with category='upscaling' to see all available models. Popular: aura-sr (fast), clarity-upscaler (quality), pasd (realistic), chain-of-zoom (8x)"),
   scaleFactor: z.number().min(2).max(8).default(4).describe("Upscaling factor (2x, 4x, etc.)"),
   overlappingFactor: z.number().min(0.1).max(0.9).default(0.5).describe("Overlapping factor for tiling (clarity model only)"),
   prompt: z.string().optional().describe("Optional prompt for guided upscaling (pasd model only)"),
@@ -21,141 +25,135 @@ export const schema = {
 
 export const metadata: ToolMetadata = {
   name: "upscaleImage",
-  description: "Upscale images with AI to increase resolution while preserving or enhancing details. Multiple quality enhancers available",
+  description: `Enhance image resolution with AI super-resolution. Transform low-res images into high-quality, detailed versions perfect for printing, displays, and professional use.
+
+CAPABILITIES:
+• Increase resolution up to 8x while adding realistic details
+• Restore and enhance old or compressed images
+• Improve image clarity without introducing artifacts
+• Preserve original style while enhancing quality
+• Handle various image types from photos to artwork
+
+USE CASES:
+• Photography - Enlarge photos for printing without quality loss
+• E-commerce - Upgrade product images to high resolution
+• Restoration - Revive old family photos or historical images
+• Design - Scale up graphics and illustrations cleanly
+• Content Creation - Improve social media images for larger displays
+• Archives - Digitize and enhance scanned documents
+
+MODEL SELECTION:
+• Aura SR (default): Fast, balanced quality, general purpose
+• Clarity Upscaler: Maximum detail preservation, professional results
+• PASD: Realistic enhancement with style control, best for photos
+• Chain-of-Zoom: Extreme upscaling (up to 8x), sequential processing
+
+SCALE FACTORS:
+• 2x: Double resolution, fastest processing
+• 4x: Quadruple resolution, most common choice
+• 6x-8x: Maximum enhancement (model dependent)
+
+ADVANCED FEATURES:
+• Style guidance (PASD): Control the enhancement style
+• Prompt-based enhancement (PASD): Guide details with text
+• Overlapping tiles (Clarity): Better consistency in large images
+
+TIPS FOR BEST RESULTS:
+• Start with the highest quality source available
+• Choose scale factor based on final use case
+• For photos, use PASD with "photographic" style
+• For maximum quality, use Clarity Upscaler
+• Test different models for your specific content type`,
   annotations: {
-    title: "Upscale Image",
+    title: "Image Upscaling AI",
     readOnlyHint: true,
     destructiveHint: false,
-    idempotentHint: true,
+    idempotentHint: false,
   },
 };
 
 export default async function upscaleImage(params: InferSchema<typeof schema>) {
   const { imageUrl, imagePath, model, scaleFactor, overlappingFactor, prompt, style } = params;
+  const toolName = 'upscaleImage';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
-
     // Validate input
     if (!imageUrl && !imagePath) {
       throw new Error("Either imageUrl or imagePath must be provided");
     }
+    if (imageUrl && imagePath) {
+      throw new Error("Only one of imageUrl or imagePath should be provided");
+    }
+    
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
-    // Handle local file
-    let inputUrl = imageUrl;
-    if (imagePath && !imageUrl) {
-      const fs = await import("fs-extra");
-      const path = await import("path");
-      const os = await import("os");
+    // Handle local image upload
+    let actualImageUrl = imageUrl;
+    if (imagePath) {
+      // Check if file exists
+      if (!await fs.pathExists(imagePath)) {
+        throw new Error(`File not found: ${imagePath}`);
+      }
       
-      // Resolve path (handle ~ for home)
-      const resolvedPath = imagePath.startsWith('~') 
-        ? path.join(os.homedir(), imagePath.slice(1))
-        : path.resolve(imagePath);
-      
-      // Read and convert to base64
-      const buffer = await fs.readFile(resolvedPath);
-      const base64 = buffer.toString('base64');
-      const ext = path.extname(resolvedPath).toLowerCase();
+      // Read file and convert to base64 data URL
+      const imageBuffer = await fs.readFile(imagePath);
+      const ext = path.extname(imagePath).toLowerCase();
       const mimeType = ext === '.png' ? 'image/png' : 
-                       ext === '.webp' ? 'image/webp' : 
-                       'image/jpeg';
-      
-      inputUrl = `data:${mimeType};base64,${base64}`;
+                       ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
+                       ext === '.webp' ? 'image/webp' : 'image/jpeg';
+      actualImageUrl = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
     }
 
     // Prepare input based on model
     let input: any = {};
     
-    switch (model) {
-      case "fal-ai/aura-sr":
-        input = {
-          image_url: inputUrl,
-          upscaling_factor: scaleFactor,
-        };
-        break;
-        
-      case "fal-ai/clarity-upscaler":
-        input = {
-          image_url: inputUrl,
-          scale: scaleFactor,
-          overlapping_factor: overlappingFactor,
-        };
-        break;
-        
-      case "fal-ai/pasd":
-        input = {
-          image_url: inputUrl,
-          upscale_factor: scaleFactor,
-          prompt: prompt || "",
-          style_preset: style,
-        };
-        break;
-        
-      case "fal-ai/chain-of-zoom":
-        input = {
-          image_url: inputUrl,
-          scale_factor: scaleFactor,
-          num_inference_steps: 50,
-        };
-        break;
-        
-      default:
-        throw new Error(`Unknown model: ${model}`);
+    if (model.includes("aura-sr")) {
+      input = {
+        image_url: actualImageUrl,
+        scale: scaleFactor,
+      };
+    } else if (model.includes("clarity-upscaler")) {
+      input = {
+        image_url: actualImageUrl,
+        scale: scaleFactor,
+        overlapping_factor: overlappingFactor,
+      };
+    } else if (model.includes("pasd")) {
+      input = {
+        image_url: actualImageUrl,
+        upscaling_factor: scaleFactor,
+        prompt: prompt || `A high quality, ${style || 'realistic'} image`,
+        style_preset: style,
+      };
+    } else if (model.includes("chain-of-zoom")) {
+      input = {
+        image_url: actualImageUrl,
+        num_steps: Math.ceil(Math.log2(scaleFactor)), // Convert scale factor to steps
+      };
+    } else if (model.includes("supir")) {
+      input = {
+        image_url: actualImageUrl,
+        scale: scaleFactor,
+        restoration_weight: 0.5, // Default restoration weight
+      };
+    } else {
+      // Default input for unknown models
+      input = {
+        image_url: actualImageUrl,
+        scale: scaleFactor,
+      };
     }
 
     // Submit to fal.ai
-    const status = await fal.subscribe(model, {
-      input,
-      logs: false,
-    });
-
-    // Extract result URL based on model response format
-    let resultUrl: string;
+    const response = await submitToFal(model, input, toolName);
     
-    if (status.image?.url) {
-      resultUrl = status.image.url;
-    } else if (status.images?.[0]?.url) {
-      resultUrl = status.images[0].url;
-    } else if (typeof status.image === 'string') {
-      resultUrl = status.image;
-    } else {
-      throw new Error("No output generated");
-    }
-
-    return {
-      content: [
-        { type: "text", text: resultUrl },
-      ],
-    };
+    // Extract image URL
+    const resultUrl = extractImageUrl(response, toolName);
+    
+    return formatMediaResult(resultUrl);
   } catch (error: any) {
-    // Extract more detailed error information
-    let errorMessage = error.message || 'Unknown error';
-    let statusCode = '';
-    
-    if (error.response) {
-      statusCode = error.response.status || '';
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
-    }
-    
-    if (error.body) {
-      errorMessage = error.body.detail || error.body.message || errorMessage;
-    }
-    
-    // Check for specific error types
-    if (statusCode === 404 || errorMessage.includes('Not Found')) {
-      errorMessage = `Model '${model}' not found. This might be due to:\n- Invalid model ID\n- Model deprecated or renamed\n- API key doesn't have access to this model\n\nTry using a different model or check fal.ai documentation for current model IDs.`;
-    } else if (statusCode === 401 || errorMessage.includes('Unauthorized')) {
-      errorMessage = 'Authentication failed. Please check your FAL_API_KEY.';
-    }
-    
-    return {
-      content: [
-        { type: "text", text: `❌ Error upscaling image${statusCode ? ` (${statusCode})` : ''}: ${errorMessage}` },
-      ],
-    };
+    return formatError(error, 'Error upscaling image');
   }
 }

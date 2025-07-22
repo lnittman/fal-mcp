@@ -1,15 +1,22 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import * as fal from "@fal-ai/serverless-client";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
+import {
+  initializeFalClient,
+  validateModel,
+  submitToFal,
+  extractImageUrl,
+  formatError,
+} from "../utils/tool-base";
+import { debug } from "../utils/debug";
 
 export const schema = {
   directory: z.string().describe("Directory path containing images (use ~ for home directory)"),
-  model: z.enum(["fal-ai/birefnet", "fal-ai/imageutils/rembg"])
+  model: z.string()
     .default("fal-ai/birefnet")
-    .describe("Model for background removal - birefnet for highest quality, rembg for speed"),
+    .describe("Model ID for background removal. Any fal-ai model that supports background removal. Popular: birefnet for highest quality, imageutils/rembg for speed"),
   outputSuffix: z.string().default("_nobg").describe("Suffix for output files"),
   outputFormat: z.enum(["png", "webp"]).default("png").describe("Output format (must support transparency)"),
   overwrite: z.boolean().default(false).describe("Overwrite existing output files"),
@@ -28,12 +35,12 @@ export const metadata: ToolMetadata = {
 
 export default async function batchBackgroundRemoval(params: InferSchema<typeof schema>) {
   const { directory, model, outputSuffix, outputFormat, overwrite } = params;
+  const toolName = 'batchBackgroundRemoval';
   
   try {
-    // Configure fal client
-    fal.config({
-      credentials: process.env.FAL_API_KEY,
-    });
+    // Initialize and validate
+    await validateModel(model, toolName);
+    initializeFalClient(toolName);
 
     // Resolve directory path (handle ~ for home)
     const resolvedDir = directory.startsWith('~') 
@@ -85,43 +92,48 @@ export default async function batchBackgroundRemoval(params: InferSchema<typeof 
         // Prepare input based on model
         let input: any = {};
         
-        if (model === "fal-ai/birefnet") {
+        if (model.includes("birefnet")) {
           input = {
             image_url: imageUrl,
-            refine_foreground: true,
+            model: "u2net", // BiRefNet uses this internally
+            return_mask: false,
+            output_format: outputFormat,
+          };
+        } else if (model.includes("rembg")) {
+          input = {
+            image_url: imageUrl,
+            model: "u2net",
+            alpha_matting: false,
+            return_mask: false,
           };
         } else {
+          // Default input for unknown models
           input = {
             image_url: imageUrl,
+            return_mask: false,
           };
         }
+
+        debug(toolName, `Processing ${file} with model ${model}`);
 
         // Submit to fal.ai
-        const status = await fal.subscribe(model, {
-          input,
-          logs: false,
-        });
+        const response = await submitToFal(model, input, toolName);
         
         // Extract result URL
-        let resultUrl: string;
-        if (status.image?.url) {
-          resultUrl = status.image.url;
-        } else if (status.images?.[0]?.url) {
-          resultUrl = status.images[0].url;
-        } else {
-          throw new Error("No output generated");
-        }
+        const resultUrl = extractImageUrl(response, toolName);
 
         // Download processed image
-        const response = await fetch(resultUrl);
-        const arrayBuffer = await response.arrayBuffer();
+        const downloadResponse = await fetch(resultUrl);
+        const arrayBuffer = await downloadResponse.arrayBuffer();
         
         // Save the processed image
         await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
         
         processedCount++;
+        debug(toolName, `Successfully processed ${file}`);
       } catch (error: any) {
         errorCount++;
+        debug(toolName, `Error processing ${file}:`, error);
       }
     }
 
@@ -134,16 +146,14 @@ export default async function batchBackgroundRemoval(params: InferSchema<typeof 
       summary += ` (${errorCount} errors)`;
     }
     
+    debug(toolName, `Batch processing complete:`, { processedCount, skippedCount, errorCount });
+    
     return {
       content: [
         { type: "text", text: summary },
       ],
     };
   } catch (error: any) {
-    return {
-      content: [
-        { type: "text", text: `Error in batch background removal: ${error.message}` },
-      ],
-    };
+    return formatError(error, 'Error in batch background removal');
   }
 }

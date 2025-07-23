@@ -24,9 +24,18 @@ A Model Context Protocol (MCP) server for fal.ai that enables natural language i
 
 ## 📚 Documentation
 
+### Core Philosophy
+- **[Architecture & Philosophy](./docs/ARCHITECTURE.md)** - Understanding our discovery-based approach
+- **[Discovery Guide for AI Agents](./docs/guides/discovery-philosophy.md)** - How agents can explore and learn
+
+### Getting Started
 - **[Setup Guide](./docs/guides/setup.md)** - Complete installation and configuration
-- **[API Reference](./docs/guides/api-reference.md)** - All available tools and configuration
+- **[Tools Reference](./docs/guides/tools-reference-new.md)** - All available tools with discovery approach
 - **[Example Workflows](./docs/examples/workflows.md)** - Powerful agentic combinations
+
+### Development
+- **[Contributing Guide](./docs/CONTRIBUTING.md)** - How to contribute to fal-mcp
+- **[Testing Guide](./docs/TESTING.md)** - Testing infrastructure and strategies
 - **[Troubleshooting](./docs/guides/troubleshooting.md)** - Common issues and solutions
 
 ## Installation
@@ -76,7 +85,7 @@ pnpm start-stdio  # STDIO mode
 
 ### Configure in Claude Desktop
 
-See [Setup Guide](./docs/SETUP.md) for detailed configuration instructions.
+See [Setup Guide](./docs/guides/setup.md) for detailed configuration instructions.
 
 Quick config for `~/Library/Application Support/Claude/claude_desktop_config.json`:
 

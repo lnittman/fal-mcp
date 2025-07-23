@@ -7,8 +7,8 @@ import {
   formatMediaResult,
   formatError,
   extractAudioUrl,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   text: z.string().describe("Text to convert to speech"),
@@ -50,42 +50,29 @@ export default async function textToSpeech(params: InferSchema<typeof schema>) {
     await validateModel(model, toolName);
     initializeFalClient(toolName);
 
-    // Prepare input based on model
-    let input: any = {};
-    
-    if (model.includes("text-to-speech")) {
-      input = {
-        text,
-        voice,
-        speed,
-        language,
-      };
-    } else if (model.includes("wizmodel")) {
-      input = {
-        text,
-        speaker: voice,
-        speed,
-        language,
-      };
-    } else if (model.includes("tortoise-tts")) {
-      input = {
-        text,
-        voice,
-        preset: "fast",
-      };
-    } else {
-      // Generic TTS model input
-      input = {
-        text,
-        voice,
-        speed,
-        language,
-      };
-    }
+    // Build input with common parameters
+    // Let the agent discover which parameters work
+    const input: any = {
+      text,
+      // Try different voice parameter names
+      voice,
+      speaker: voice,
+      voice_id: voice,
+      // Speed parameters
+      speed,
+      rate: speed,
+      speech_rate: speed,
+      // Language parameters
+      language,
+      lang: language,
+      language_code: language,
+    };
 
-    // Add emotion if specified and model supports it
+    // Add emotion if specified
     if (emotion && emotion !== "neutral") {
       input.emotion = emotion;
+      input.style = emotion;
+      input.mood = emotion;
     }
     
     debug(toolName, `Generating speech for text: "${text.substring(0, 50)}..."`, { voice, language, speed });

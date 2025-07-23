@@ -10,36 +10,35 @@ import {
   extractImageUrl,
   extractVideoUrl,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
-// Define available workflow steps
+// Define available workflow steps with generic parameters
 const workflowSteps = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("generate"),
-    prompt: z.string(),
     model: z.string().default("fal-ai/flux/dev"),
+    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., prompt, image_size, style)"),
   }),
   z.object({
     type: z.literal("removeBackground"),
     model: z.string().default("fal-ai/birefnet"),
+    parameters: z.record(z.any()).optional().describe("Model-specific parameters"),
   }),
   z.object({
     type: z.literal("upscale"),
-    scaleFactor: z.number().min(2).max(8).default(4),
     model: z.string().default("fal-ai/aura-sr"),
+    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., scale, upscaling_factor)"),
   }),
   z.object({
     type: z.literal("transform"),
-    prompt: z.string(),
-    strength: z.number().min(0).max(1).default(0.8),
     model: z.string().default("fal-ai/flux-general/image-to-image"),
+    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., prompt, strength)"),
   }),
   z.object({
     type: z.literal("animate"),
-    motionPrompt: z.string().optional(),
-    duration: z.number().min(1).max(6).default(3),
-    model: z.string().default("fal-ai/stable-video-diffusion/image-to-video"),
+    model: z.string().default("fal-ai/wan-effects"),
+    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., motion_prompt, duration, fps)"),
   }),
 ]);
 
@@ -52,9 +51,21 @@ export const schema = {
 
 export const metadata: ToolMetadata = {
   name: "workflowChain",
-  description: "Chain multiple image/video operations together. Start with generation or an existing image, then apply transformations sequentially",
+  description: `Chain multiple operations together with any fal.ai models.
+
+The agent should discover which parameters work for each step through experimentation.
+Each step type accepts different parameters - let the API guide you.
+
+Step types:
+• generate - Create new images from text
+• removeBackground - Remove backgrounds from images
+• upscale - Enhance image resolution
+• transform - Modify images based on prompts
+• animate - Convert images to videos
+
+Remember: Error messages often reveal the correct parameter names and formats.`,
   annotations: {
-    title: "Workflow Chain",
+    title: "Workflow Chain (Generic)",
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: false,
@@ -93,16 +104,9 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
         switch (step.type) {
           case "generate": {
             const modelId = step.model || "fal-ai/flux/dev";
-            const input: any = {
-              prompt: step.prompt,
+            const input = {
+              ...step.parameters,
             };
-            
-            // Add model-specific parameters
-            if (modelId.includes("flux")) {
-              input.image_size = "square";
-            } else if (modelId.includes("recraft")) {
-              input.style = "realistic_image";
-            }
             
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractImageUrl(response, toolName);
@@ -110,14 +114,12 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           }
           
           case "removeBackground": {
-            const input = step.model.includes("birefnet") 
-              ? { 
-                  image_url: currentResult, 
-                  model: "u2net",
-                  return_mask: false,
-                  output_format: "png",
-                }
-              : { image_url: currentResult };
+            const input = {
+              ...step.parameters,
+              // Try common parameter names
+              image_url: currentResult,
+              image: currentResult,
+            };
             
             const response = await submitToFal(step.model, input, toolName);
             currentResult = extractImageUrl(response, toolName);
@@ -125,28 +127,13 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           }
           
           case "upscale": {
-            let input: any = {};
             const modelId = step.model || "fal-ai/aura-sr";
-            
-            if (modelId.includes("aura-sr")) {
-              input = { image_url: currentResult, scale: step.scaleFactor };
-            } else if (modelId.includes("clarity-upscaler")) {
-              input = { image_url: currentResult, scale: step.scaleFactor, overlapping_factor: 0.5 };
-            } else if (modelId.includes("pasd")) {
-              input = { 
-                image_url: currentResult, 
-                upscaling_factor: step.scaleFactor,
-                prompt: "A high quality, realistic image",
-                style_preset: "realistic"
-              };
-            } else if (modelId.includes("chain-of-zoom")) {
-              input = { 
-                image_url: currentResult,
-                num_steps: Math.ceil(Math.log2(step.scaleFactor)),
-              };
-            } else {
-              input = { image_url: currentResult, scale: step.scaleFactor };
-            }
+            const input = {
+              ...step.parameters,
+              // Try common parameter names
+              image_url: currentResult,
+              image: currentResult,
+            };
             
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractImageUrl(response, toolName);
@@ -156,9 +143,10 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           case "transform": {
             const modelId = step.model || "fal-ai/flux-general/image-to-image";
             const input = {
+              ...step.parameters,
+              // Try common parameter names
               image_url: currentResult,
-              prompt: step.prompt,
-              strength: step.strength,
+              image: currentResult,
             };
             
             const response = await submitToFal(modelId, input, toolName);
@@ -167,36 +155,14 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
           }
           
           case "animate": {
-            const modelId = step.model || "fal-ai/stable-video-diffusion/image-to-video";
-            let input: any = {};
-            
-            if (modelId.includes("stable-video-diffusion")) {
-              input = {
-                image_url: currentResult,
-                motion_bucket_id: 127,
-                fps: 7,
-                num_frames: 25,
-              };
-            } else if (modelId.includes("wan-effects") || modelId.includes("wan-i2v")) {
-              input = {
-                image_url: currentResult,
-                motion_prompt: step.motionPrompt,
-                duration: step.duration,
-                fps: 24,
-              };
-            } else if (modelId.includes("wan-pro")) {
-              input = {
-                image_url: currentResult,
-                prompt: step.motionPrompt || "Animate the image",
-                duration: step.duration,
-              };
-            } else {
-              input = {
-                image_url: currentResult,
-                prompt: step.motionPrompt,
-                duration: step.duration,
-              };
-            }
+            const modelId = step.model || "fal-ai/wan-effects";
+            const input = {
+              ...step.parameters,
+              // Try common parameter names
+              image_url: currentResult,
+              image: currentResult,
+              first_frame_image: currentResult,
+            };
             
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractVideoUrl(response, toolName);

@@ -46,7 +46,12 @@
     "start-stdio": "node stdio-wrapper.js",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:mcp": "npm run build && FAL_MCP_MOCK=true node dist/test-utils/mcp-test-client.js",
+    "test:integration": "./test-mcp.sh"
   },
   "dependencies": {
     "@fal-ai/serverless-client": "^0.15.0",
@@ -58,6 +63,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
-    "swc-loader": "^0.2.6"
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.10.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "swc-loader": "^0.2.6",
+    "vitest": "^2.1.8"
   }
 }

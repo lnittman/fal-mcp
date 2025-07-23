@@ -5,8 +5,8 @@ import {
   validateModel,
   submitToFal,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the image to analyze"),
@@ -73,21 +73,19 @@ export default async function imageToJson(params: InferSchema<typeof schema>) {
     await validateModel(model, toolName);
     initializeFalClient(toolName);
 
-    // Prepare input based on model
-    let input: any = {};
-    
-    if (model.includes("bagel/understand")) {
-      input = {
-        image: imageUrl,
-        question: prompt,
-      };
-    } else {
-      // Generic VLM model input
-      input = {
-        image_url: imageUrl,
-        prompt,
-      };
-    }
+    // Build input with common parameters
+    // Let the agent discover which parameters work
+    const input: any = {
+      // Try different image parameter names
+      image: imageUrl,
+      image_url: imageUrl,
+      input_image: imageUrl,
+      // Try different prompt parameter names
+      prompt,
+      question: prompt,
+      query: prompt,
+      text: prompt,
+    };
     
     debug(toolName, `Analyzing image with prompt: ${prompt}`);
 

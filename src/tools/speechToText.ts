@@ -5,8 +5,8 @@ import {
   validateModel,
   submitToFal,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   audioUrl: z.string().describe("URL of the audio file to transcribe"),
@@ -80,28 +80,21 @@ export default async function speechToText(params: InferSchema<typeof schema>) {
     await validateModel(model, toolName);
     initializeFalClient(toolName);
 
-    // Prepare input based on model
-    let input: any = {};
+    // Build input with common parameters
+    // Let the agent discover which parameter names work
+    const input: any = {
+      audio_url: audioUrl,
+      audio: audioUrl,
+      task: translate ? "translate" : task,
+      // Try both timestamp parameter names
+      return_timestamps: includeTimestamps,
+      include_timestamps: includeTimestamps,
+      timestamps: includeTimestamps,
+    };
     
-    if (model.includes("whisper")) {
-      input = {
-        audio_url: audioUrl,
-        task: translate ? "translate" : task,
-        return_timestamps: includeTimestamps,
-      };
-      if (language) {
-        input.language = language;
-      }
-    } else {
-      // Generic speech-to-text model input
-      input = {
-        audio_url: audioUrl,
-        task: translate ? "translate" : task,
-        include_timestamps: includeTimestamps,
-      };
-      if (language) {
-        input.language = language;
-      }
+    if (language) {
+      input.language = language;
+      input.lang = language; // Some models might use 'lang'
     }
     
     debug(toolName, `Transcribing audio`, { model, task, language, includeTimestamps });

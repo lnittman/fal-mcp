@@ -51,6 +51,84 @@ export async function validateModel(model: string, toolName: string): Promise<vo
 }
 
 /**
+ * Get mock responses for testing
+ * This function uses the tool context to determine the expected response format
+ */
+function getMockResponse(model: string, input: any, toolName: string): any {
+  const timestamp = Date.now();
+  
+  // Determine response format based on the calling tool
+  // This is ONLY for mocking - real API responses are handled dynamically
+  
+  // Tools that expect image responses
+  if (toolName.includes('Image') && !toolName.includes('toVideo') && !toolName.includes('toJson') ||
+      toolName === 'backgroundRemoval' || 
+      toolName === 'objectRemoval' ||
+      toolName === 'upscaleImage' ||
+      toolName === 'textToImageStyled') {
+    return {
+      images: [{ 
+        url: `https://fal.media/mock/${timestamp}/image.png`,
+        width: 1024,
+        height: 1024,
+        content_type: "image/png"
+      }],
+      // Also include alternate formats the API might return
+      image: {
+        url: `https://fal.media/mock/${timestamp}/image.png`,
+        width: 1024,
+        height: 1024
+      }
+    };
+  }
+  
+  // Tools that expect video responses
+  if (toolName.includes('Video')) {
+    return {
+      video: { 
+        url: `https://fal.media/mock/${timestamp}/video.mp4`,
+        duration: input.duration || 4,
+        fps: input.fps || 24
+      }
+    };
+  }
+  
+  // Tools that expect audio responses
+  if (toolName.includes('Audio') || toolName === 'textToSpeech') {
+    return {
+      audio_url: `https://fal.media/mock/${timestamp}/audio.mp3`,
+      duration: input.duration || 10
+    };
+  }
+  
+  // Tools that expect text/JSON responses
+  if (toolName === 'speechToText') {
+    return {
+      text: "This is a mock transcription of the audio content.",
+      chunks: [{ text: "This is a mock transcription", timestamp: [0, 3] }]
+    };
+  }
+  
+  if (toolName === 'imageToJson') {
+    return {
+      text: "Mock analysis: The image contains various objects.",
+      data: { objects: ["object1", "object2"], confidence: 0.95 }
+    };
+  }
+  
+  // Generic response that could work for any tool
+  return {
+    url: `https://fal.media/mock/${timestamp}/result.bin`,
+    images: [{ url: `https://fal.media/mock/${timestamp}/result.png` }],
+    video: { url: `https://fal.media/mock/${timestamp}/result.mp4` },
+    audio_url: `https://fal.media/mock/${timestamp}/result.mp3`,
+    text: "Mock response",
+    success: true,
+    mock: true
+  };
+}
+
+/**
  * Submit a request to fal.ai
  */
 export async function submitToFal<T = any>(
@@ -60,6 +138,18 @@ export async function submitToFal<T = any>(
 ): Promise<T> {
   debug(toolName, `Submitting to model: ${model}`);
   debug(toolName, 'Input:', input);
+  
+  // Check if we're in mock mode
+  if (process.env.FAL_MCP_MOCK === 'true') {
+    debug(toolName, 'MOCK MODE: Returning mock response');
+    const mockResponse = getMockResponse(model, input, toolName);
+    debug(toolName, 'Mock response:', mockResponse);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    return mockResponse as T;
+  }
   
   try {
     const result = await fal.subscribe(model, {
@@ -215,15 +305,3 @@ export function extractAudioUrl(response: any, toolName: string): string {
   throw new Error('No audio URL found in response');
 }
 
-/**
- * Prepare input for different model types based on common patterns
- */
-export function prepareModelInput(
-  model: string,
-  baseInput: Record<string, any>,
-  modelType: 'image-to-video' | 'text-to-image' | 'image-to-image' | 'other'
-): any {
-  // This can be extended with model-specific input preparation
-  // For now, return the base input as most models are flexible
-  return baseInput;
-}

@@ -10,8 +10,8 @@ import {
   formatMediaResult,
   formatError,
   extractImageUrl,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   imageUrl: z.string().optional().describe("URL of the input image to process. Accepts direct URLs or data URLs"),
@@ -98,35 +98,30 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
       inputUrl = `data:${mimeType};base64,${base64}`;
     }
 
-    // Prepare input based on model
-    let input: any = {};
+    // Build input with common parameters
+    // Let the agent discover which parameters work
+    const input: any = {
+      // Try different image parameter names
+      image_url: inputUrl,
+      image: inputUrl,
+      input_image: inputUrl,
+      // Mask parameters
+      mask_url: maskUrl,
+      mask: maskUrl,
+      mask_image: maskUrl,
+    };
     
-    if (model.includes("lama")) {
-      // LAMA model input
-      input = {
-        image_url: inputUrl,
-        mask_url: maskUrl,
-        dilate_mask: dilateAmount > 0,
-        dilate_amount: dilateAmount,
-      };
-    } else if (model.includes("stable-diffusion") && model.includes("inpainting")) {
-      // Stable Diffusion inpainting input
-      input = {
-        image_url: inputUrl,
-        mask_url: maskUrl,
-        prompt: backgroundPrompt || "clean natural background that matches the surroundings",
-        negative_prompt: "blurry, artifacts, distorted",
-        strength: 0.85,
-        guidance_scale: 7.5,
-        num_inference_steps: 25,
-      };
-    } else {
-      // Generic inpainting model
-      input = {
-        image_url: inputUrl,
-        mask_url: maskUrl,
-        prompt: backgroundPrompt,
-      };
+    // Add optional parameters if provided
+    if (dilateAmount !== undefined) {
+      input.dilate_mask = dilateAmount > 0;
+      input.dilate_amount = dilateAmount;
+      input.dilation = dilateAmount;
+    }
+    
+    if (backgroundPrompt) {
+      input.prompt = backgroundPrompt;
+      input.inpaint_prompt = backgroundPrompt;
+      input.fill_prompt = backgroundPrompt;
     }
     
     debug(toolName, `Removing objects with model ${model}`);

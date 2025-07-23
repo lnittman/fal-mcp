@@ -4,8 +4,8 @@ import {
   initializeFalClient,
   submitToFal,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 // Schema for loudness normalization
 export const loudnormSchema = {

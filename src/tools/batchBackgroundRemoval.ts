@@ -9,8 +9,8 @@ import {
   submitToFal,
   extractImageUrl,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   directory: z.string().describe("Directory path containing images (use ~ for home directory)"),
@@ -89,30 +89,15 @@ export default async function batchBackgroundRemoval(params: InferSchema<typeof 
         const mimeType = file.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
         const imageUrl = `data:${mimeType};base64,${base64}`;
         
-        // Prepare input based on model
-        let input: any = {};
-        
-        if (model.includes("birefnet")) {
-          input = {
-            image_url: imageUrl,
-            model: "u2net", // BiRefNet uses this internally
-            return_mask: false,
-            output_format: outputFormat,
-          };
-        } else if (model.includes("rembg")) {
-          input = {
-            image_url: imageUrl,
-            model: "u2net",
-            alpha_matting: false,
-            return_mask: false,
-          };
-        } else {
-          // Default input for unknown models
-          input = {
-            image_url: imageUrl,
-            return_mask: false,
-          };
-        }
+        // Build input with common parameters
+        // Let the agent discover which parameters work
+        const input: any = {
+          image_url: imageUrl,
+          image: imageUrl,
+          return_mask: false,
+          output_format: outputFormat,
+          format: outputFormat,
+        };
 
         debug(toolName, `Processing ${file} with model ${model}`);
 

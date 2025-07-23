@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import { formatError } from "../utils/tool-base";
-import { debug } from "../utils/debug";
-import { validateModelDynamic, inferModelCategory } from "../utils/models";
-import { getModelSuggestionsAI } from "../utils/fal-client";
+import { formatError } from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
+import { validateModelDynamic, inferModelCategory, getDynamicModelSuggestions } from "../lib/utils/models";
 
 export const schema = {
   operation: z.enum(["validate", "suggest", "infer"])
@@ -89,7 +88,7 @@ export default async function discoverModelsDynamic(params: InferSchema<typeof s
           results.push("  - Audio: fal-ai/whisper, fal-ai/musicgen");
           results.push("  - Upscaling: fal-ai/aura-sr, fal-ai/clarity-upscaler");
         } else {
-          const suggestions = await getModelSuggestionsAI(useCase);
+          const suggestions = getDynamicModelSuggestions(useCase);
           results.push(`Suggestions for "${useCase}":\n`);
           suggestions.forEach(s => results.push(`• ${s}`));
         }

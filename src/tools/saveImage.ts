@@ -3,8 +3,8 @@ import { type InferSchema, type ToolMetadata } from "xmcp";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { formatError } from "../utils/tool-base";
-import { debug } from "../utils/debug";
+import { formatError } from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the image to save"),

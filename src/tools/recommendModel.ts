@@ -1,121 +1,27 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import { formatError } from "../utils/tool-base";
-import { debug } from "../utils/debug";
-
-// Model database with capabilities and recommendations
-const modelDatabase = {
-  // Image Generation
-  "fal-ai/flux/dev": {
-    category: "image-generation",
-    name: "Flux Dev",
-    strengths: ["High quality", "Detailed outputs", "Complex prompts", "Artistic control"],
-    weaknesses: ["Slower generation", "Higher cost"],
-    bestFor: ["Professional work", "Detailed artwork", "Complex scenes"],
-    speed: "slow",
-    quality: "excellent",
-  },
-  "fal-ai/flux/schnell": {
-    category: "image-generation",
-    name: "Flux Schnell",
-    strengths: ["Fast generation", "Good quality", "Efficient"],
-    weaknesses: ["Less detail than Dev", "Simpler prompts work better"],
-    bestFor: ["Quick iterations", "Prototyping", "Simple images"],
-    speed: "fast",
-    quality: "good",
-  },
-  "fal-ai/flux/pro": {
-    category: "image-generation",
-    name: "Flux Pro",
-    strengths: ["Highest quality", "Best details", "Professional features"],
-    weaknesses: ["Most expensive", "Slowest"],
-    bestFor: ["Production quality", "Commercial use", "Maximum quality"],
-    speed: "slowest",
-    quality: "best",
-  },
-  
-  // Background Removal
-  "fal-ai/birefnet": {
-    category: "background-removal",
-    name: "BiRefNet",
-    strengths: ["Highest accuracy", "Hair details", "Complex edges"],
-    weaknesses: ["Slower processing"],
-    bestFor: ["Professional photos", "Hair/fur", "Complex subjects"],
-    speed: "moderate",
-    quality: "excellent",
-  },
-  "fal-ai/imageutils/rembg": {
-    category: "background-removal",
-    name: "RemBG",
-    strengths: ["Fast processing", "Good accuracy", "Efficient"],
-    weaknesses: ["Less detail on complex edges"],
-    bestFor: ["Bulk processing", "Simple subjects", "Quick edits"],
-    speed: "fast",
-    quality: "good",
-  },
-  
-  // Upscaling
-  "fal-ai/aura-sr": {
-    category: "upscaling",
-    name: "Aura SR",
-    strengths: ["Balanced quality/speed", "Natural results", "General purpose"],
-    weaknesses: ["Not specialized"],
-    bestFor: ["General upscaling", "Photos", "Mixed content"],
-    speed: "moderate",
-    quality: "good",
-  },
-  "fal-ai/clarity-upscaler": {
-    category: "upscaling",
-    name: "Clarity Upscaler",
-    strengths: ["High fidelity", "Preserves details", "Professional quality"],
-    weaknesses: ["Slower", "Resource intensive"],
-    bestFor: ["Professional photos", "Maximum quality", "Print work"],
-    speed: "slow",
-    quality: "excellent",
-  },
-  "fal-ai/pasd": {
-    category: "upscaling",
-    name: "PASD",
-    strengths: ["Realistic enhancement", "Style control", "Prompt guidance"],
-    weaknesses: ["Complex to use"],
-    bestFor: ["Artistic upscaling", "Style enhancement", "Creative work"],
-    speed: "moderate",
-    quality: "excellent",
-  },
-  
-  // Video Generation
-  "fal-ai/wan-effects": {
-    category: "video-generation",
-    name: "WAN Effects",
-    strengths: ["Special effects", "Motion control", "Short clips"],
-    weaknesses: ["Limited duration", "Basic motion"],
-    bestFor: ["Effects", "Social media", "Quick animations"],
-    speed: "fast",
-    quality: "good",
-  },
-  "fal-ai/veo3": {
-    category: "video-generation",
-    name: "Veo3",
-    strengths: ["Highest quality", "Smooth motion", "Professional results"],
-    weaknesses: ["Very slow", "Expensive"],
-    bestFor: ["Professional video", "High quality needs", "Commercial use"],
-    speed: "slowest",
-    quality: "best",
-  },
-};
+import { formatError } from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
-  task: z.string().describe("What you want to accomplish (e.g., 'remove background from product photos', 'generate anime artwork', 'upscale old photos')"),
-  priority: z.enum(["quality", "speed", "balance"]).default("balance").describe("What matters most for this task"),
-  budget: z.enum(["low", "medium", "high"]).optional().describe("Cost considerations"),
-  details: z.string().optional().describe("Additional requirements or constraints"),
+  task: z.string().describe("What you want to accomplish"),
+  context: z.record(z.any()).optional().describe("Any additional context like previous attempts, errors encountered, or specific requirements"),
 };
 
 export const metadata: ToolMetadata = {
   name: "recommendModel",
-  description: "Get personalized model recommendations based on your specific task and requirements",
+  description: `Help the agent discover appropriate models through exploration.
+
+This tool provides discovery strategies, not prescriptive recommendations.
+The agent should use this to learn HOW to find models, not WHICH models to use.
+
+The agent is encouraged to:
+1. Use listModelsDynamic and discoverModelsDynamic for exploration
+2. Try models and learn from their responses
+3. Build its own knowledge through experience
+4. Share what it has learned from previous attempts`,
   annotations: {
-    title: "Model Recommendations",
+    title: "Model Discovery Helper",
     readOnlyHint: true,
     destructiveHint: false,
     idempotentHint: true,
@@ -123,139 +29,69 @@ export const metadata: ToolMetadata = {
 };
 
 export default async function recommendModel(params: InferSchema<typeof schema>) {
-  const { task, priority, budget, details } = params;
+  const { task, context = {} } = params;
   const toolName = 'recommendModel';
   
   try {
-    debug(toolName, `Finding recommendations for: ${task}`, { priority, budget });
-  
-  // Analyze task to determine category
-  const taskLower = task.toLowerCase();
-  let categories: string[] = [];
-  
-  // Determine relevant categories
-  if (taskLower.includes("generat") || taskLower.includes("create") || taskLower.includes("make")) {
-    if (taskLower.includes("video") || taskLower.includes("animate") || taskLower.includes("motion")) {
-      categories.push("video-generation");
-    } else {
-      categories.push("image-generation");
-    }
-  }
-  
-  if (taskLower.includes("background") || taskLower.includes("remove") || taskLower.includes("cutout")) {
-    categories.push("background-removal");
-  }
-  
-  if (taskLower.includes("upscale") || taskLower.includes("enhance") || taskLower.includes("resolution")) {
-    categories.push("upscaling");
-  }
-  
-  // If no specific category detected, analyze for general terms
-  if (categories.length === 0) {
-    if (taskLower.includes("photo") || taskLower.includes("image") || taskLower.includes("picture")) {
-      categories.push("image-generation", "upscaling", "background-removal");
-    } else if (taskLower.includes("video") || taskLower.includes("clip") || taskLower.includes("movie")) {
-      categories.push("video-generation");
-    } else {
-      // Default to image generation
-      categories.push("image-generation");
-    }
-  }
-  
-  // Filter models by category
-  const relevantModels = Object.entries(modelDatabase).filter(([_, info]) => 
-    categories.includes(info.category)
-  );
-  
-  // Score and rank models
-  const scoredModels = relevantModels.map(([modelId, info]) => {
-    let score = 0;
+    debug(toolName, `Helping with discovery for: ${task}`, { context });
     
-    // Priority scoring
-    if (priority === "quality") {
-      if (info.quality === "best") score += 30;
-      else if (info.quality === "excellent") score += 20;
-      else if (info.quality === "good") score += 10;
-    } else if (priority === "speed") {
-      if (info.speed === "fast") score += 30;
-      else if (info.speed === "moderate") score += 15;
-      else if (info.speed === "slow") score += 5;
-      else if (info.speed === "slowest") score += 0;
-    } else { // balance
-      if (info.quality === "excellent" && info.speed === "moderate") score += 25;
-      else if (info.quality === "good" && info.speed === "fast") score += 20;
-      else score += 10;
+    const guidance: string[] = [];
+    
+    guidance.push(`**Discovery Strategy for: "${task}"**\n`);
+    
+    guidance.push("**How to Discover Models:**");
+    guidance.push("1. Use listModelsDynamic to explore model patterns");
+    guidance.push("2. Use modelDocs to get detailed documentation for specific models");
+    guidance.push("3. Use discoverModelsDynamic to validate model IDs");
+    guidance.push("4. Try models with generic parameters first");
+    guidance.push("5. Learn from error messages - they often reveal correct parameter names");
+    guidance.push("6. Iterate based on results\n");
+    
+    guidance.push("**Discovery Process:**");
+    guidance.push("• Start broad: Try models that seem related to your task");
+    guidance.push("• Check docs: Use modelDocs tool for detailed parameter info");
+    guidance.push("• Test hypotheses: If a model name contains relevant keywords, try it");
+    guidance.push("• Learn from errors: API errors often show expected parameters");
+    guidance.push("• Build knowledge: What you learn applies to similar models\n");
+    
+    guidance.push("**Common Model Patterns:**");
+    guidance.push("• flux/* - High-quality image generation");
+    guidance.push("• stable-diffusion/* - Versatile image generation");
+    guidance.push("• whisper/* - Speech transcription");
+    guidance.push("• kling-video/*, wan-* - Video generation");
+    guidance.push("• stable-audio/*, musicgen/* - Audio/music generation");
+    guidance.push("• birefnet, rembg - Background removal");
+    guidance.push("• aura-sr, clarity-upscaler - Image upscaling\n");
+    
+    guidance.push("**Remember:**");
+    guidance.push("• Every fal-ai/* model is available to try");
+    guidance.push("• Model names often hint at their purpose");
+    guidance.push("• Use modelDocs for detailed parameter information");
+    guidance.push("• There's no 'wrong' model to try - experiment freely");
+    guidance.push("• Success comes from exploration, not prescription");
+    
+    if (context.previousAttempts) {
+      guidance.push("\n**Learning from Your Previous Attempts:**");
+      guidance.push("• What error messages did you receive?");
+      guidance.push("• Did the errors suggest parameter names?");
+      guidance.push("• Have you checked modelDocs for this model?");
+      guidance.push("• Can you try similar models with adjusted parameters?");
     }
     
-    // Budget considerations
-    if (budget === "low") {
-      if (info.speed === "fast") score += 10; // Faster = cheaper
-      if (modelId.includes("schnell") || modelId.includes("rembg")) score += 10;
-    } else if (budget === "high") {
-      if (info.quality === "best" || info.quality === "excellent") score += 10;
-    }
+    guidance.push("\n**Next Steps:**");
+    guidance.push("1. List available models for your task category");
+    guidance.push("2. Use modelDocs to understand a model's parameters");
+    guidance.push("3. Pick one that seems relevant and try it");
+    guidance.push("4. Adjust based on the response");
+    guidance.push("5. Try alternatives if needed");
+    guidance.push("6. Build your own understanding of what works");
     
-    // Task-specific bonuses
-    if (taskLower.includes("professional") || taskLower.includes("commercial")) {
-      if (info.bestFor.some(use => use.toLowerCase().includes("professional"))) score += 15;
-    }
-    
-    if (taskLower.includes("quick") || taskLower.includes("fast")) {
-      if (info.speed === "fast") score += 15;
-    }
-    
-    if (taskLower.includes("detail") || taskLower.includes("quality")) {
-      if (info.quality === "excellent" || info.quality === "best") score += 15;
-    }
-    
-    return { modelId, info, score };
-  });
-  
-  // Sort by score
-  scoredModels.sort((a, b) => b.score - a.score);
-  
-  // Build recommendations
-  const recommendations: string[] = [];
-  
-  if (scoredModels.length === 0) {
     return {
       content: [
-        { type: "text", text: "No specific models found for your task. Try rephrasing or being more specific." },
-      ],
-    };
-  }
-  
-  // Primary recommendation
-  const primary = scoredModels[0];
-  recommendations.push(`**Recommended:** ${primary.modelId} (${primary.info.name})`);
-  recommendations.push(`Best for: ${primary.info.bestFor.join(", ")}`);
-  recommendations.push(`Strengths: ${primary.info.strengths.join(", ")}`);
-  
-  // Alternative recommendations
-  if (scoredModels.length > 1) {
-    recommendations.push("\n**Alternatives:**");
-    for (let i = 1; i < Math.min(3, scoredModels.length); i++) {
-      const alt = scoredModels[i];
-      recommendations.push(`- ${alt.modelId}: ${alt.info.strengths.slice(0, 2).join(", ")}`);
-    }
-  }
-  
-  // Priority-specific advice
-  recommendations.push("\n**Advice:**");
-  if (priority === "quality") {
-    recommendations.push("For maximum quality, expect longer processing times and higher costs.");
-  } else if (priority === "speed") {
-    recommendations.push("For fastest results, you may sacrifice some output quality.");
-  } else {
-    recommendations.push("Balanced approach gives good results with reasonable speed.");
-  }
-  
-    return {
-      content: [
-        { type: "text", text: recommendations.join("\n") },
+        { type: "text", text: guidance.join("\n") },
       ],
     };
   } catch (error: any) {
-    return formatError(error, 'Error generating recommendations');
+    return formatError(error, 'Error in discovery helper');
   }
 }

@@ -9,8 +9,8 @@ import {
   submitToFal,
   extractImageUrl,
   formatError,
-} from "../utils/tool-base";
-import { debug } from "../utils/debug";
+} from "../lib/utils/tool-base";
+import { debug } from "../lib/utils/debug";
 
 export const schema = {
   directory: z.string().describe("Directory path containing images (use ~ for home directory)"),

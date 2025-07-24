@@ -1,15 +1,18 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import * as fal from "@fal-ai/serverless-client";
 import * as fs from "fs/promises";
-import * as path from "path";
 import * as os from "os";
-import { formatError, initializeFalClient } from "../lib/utils/tool-base";
+import * as path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
 import { debug } from "../lib/utils/debug";
+import { formatError, initializeFalClient } from "../lib/utils/tool-base";
 
 export const schema = {
   filePath: z.string().describe("Local file path to upload (supports ~ for home directory)"),
-  contentType: z.string().optional().describe("MIME type of the file (auto-detected if not provided)"),
+  contentType: z
+    .string()
+    .optional()
+    .describe("MIME type of the file (auto-detected if not provided)"),
 };
 
 export const metadata: ToolMetadata = {
@@ -52,41 +55,41 @@ WORKFLOW EXAMPLE:
 async function getMimeType(filePath: string): Promise<string> {
   const ext = path.extname(filePath).toLowerCase();
   const mimeTypes: Record<string, string> = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.bmp': 'image/bmp',
-    '.svg': 'image/svg+xml',
-    '.mp4': 'video/mp4',
-    '.mov': 'video/quicktime',
-    '.avi': 'video/x-msvideo',
-    '.webm': 'video/webm',
-    '.mp3': 'audio/mpeg',
-    '.wav': 'audio/wav',
-    '.flac': 'audio/flac',
-    '.ogg': 'audio/ogg',
-    '.m4a': 'audio/mp4',
-    '.pdf': 'application/pdf',
-    '.json': 'application/json',
-    '.txt': 'text/plain',
-    '.xml': 'application/xml',
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".bmp": "image/bmp",
+    ".svg": "image/svg+xml",
+    ".mp4": "video/mp4",
+    ".mov": "video/quicktime",
+    ".avi": "video/x-msvideo",
+    ".webm": "video/webm",
+    ".mp3": "audio/mpeg",
+    ".wav": "audio/wav",
+    ".flac": "audio/flac",
+    ".ogg": "audio/ogg",
+    ".m4a": "audio/mp4",
+    ".pdf": "application/pdf",
+    ".json": "application/json",
+    ".txt": "text/plain",
+    ".xml": "application/xml",
   };
-  
-  return mimeTypes[ext] || 'application/octet-stream';
+
+  return mimeTypes[ext] || "application/octet-stream";
 }
 
 export default async function uploadFile(params: InferSchema<typeof schema>) {
   const { filePath, contentType } = params;
-  const toolName = 'uploadFile';
+  const toolName = "uploadFile";
 
   try {
     // Initialize fal client
     initializeFalClient(toolName);
 
     // Resolve file path
-    const resolvedPath = filePath.startsWith('~') 
+    const resolvedPath = filePath.startsWith("~")
       ? path.join(os.homedir(), filePath.slice(1))
       : filePath;
 
@@ -102,11 +105,11 @@ export default async function uploadFile(params: InferSchema<typeof schema>) {
     // Read file
     const fileBuffer = await fs.readFile(resolvedPath);
     const fileName = path.basename(resolvedPath);
-    const mimeType = contentType || await getMimeType(resolvedPath);
+    const mimeType = contentType || (await getMimeType(resolvedPath));
 
     // Create Blob from buffer
     const blob = new Blob([fileBuffer], { type: mimeType });
-    
+
     // Upload using fal storage client
     const storage = fal.storage();
     const url = await storage.upload(blob);
@@ -128,11 +131,11 @@ export default async function uploadFile(params: InferSchema<typeof schema>) {
 **Type**: ${mimeType}
 **URL**: ${url}
 
-You can now use this URL with any fal.ai tool that accepts file inputs.`
+You can now use this URL with any fal.ai tool that accepts file inputs.`,
         },
       ],
     };
   } catch (error: any) {
-    return formatError(error, 'Error uploading file');
+    return formatError(error, "Error uploading file");
   }
 }

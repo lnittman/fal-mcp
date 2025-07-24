@@ -1,23 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import listModelsDynamic from '../../tools/listModelsDynamic';
+import { beforeEach, describe, expect, it } from "vitest";
+import listModelsDynamic from "../../tools/listModelsDynamic";
 
-describe('listModelsDynamic', () => {
+describe("listModelsDynamic", () => {
   beforeEach(() => {
     // Ensure we're in mock mode
-    process.env.FAL_MCP_MOCK = 'true';
+    process.env.FAL_MCP_MOCK = "true";
   });
 
-  it('should provide exploration guidance without query', async () => {
+  it("should provide exploration guidance without query", async () => {
     const result = await listModelsDynamic({});
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('exploration');
+    expect(result.content[0].text).toContain("exploration");
     expect(result.content[0].text).toMatch(/any fal-ai|discover|explore/i);
   });
 
-  it('should provide pattern-based guidance with query', async () => {
+  it("should provide pattern-based guidance with query", async () => {
     const result = await listModelsDynamic({
-      query: 'video',
+      query: "video",
     });
 
     expect(result).toBeDefined();
@@ -26,9 +26,9 @@ describe('listModelsDynamic', () => {
     expect(result.content[0].text).not.toMatch(/here are all the video models:/i);
   });
 
-  it('should handle image-related queries', async () => {
+  it("should handle image-related queries", async () => {
     const result = await listModelsDynamic({
-      query: 'image generation',
+      query: "image generation",
     });
 
     expect(result).toBeDefined();
@@ -36,18 +36,18 @@ describe('listModelsDynamic', () => {
     expect(result.content[0].text).toMatch(/explore|try|experiment/i);
   });
 
-  it('should handle audio queries', async () => {
+  it("should handle audio queries", async () => {
     const result = await listModelsDynamic({
-      query: 'speech',
+      query: "speech",
     });
 
     expect(result).toBeDefined();
     expect(result.content[0].text).toMatch(/speech|audio|voice/i);
   });
 
-  it('should emphasize dynamic discovery', async () => {
+  it("should emphasize dynamic discovery", async () => {
     const result = await listModelsDynamic({
-      query: 'fast models',
+      query: "fast models",
     });
 
     expect(result).toBeDefined();
@@ -57,9 +57,9 @@ describe('listModelsDynamic', () => {
     expect(result.content[0].text).toMatch(/schnell|fast|lightning|quick/i);
   });
 
-  it('should handle style queries', async () => {
+  it("should handle style queries", async () => {
     const result = await listModelsDynamic({
-      query: 'anime',
+      query: "anime",
     });
 
     expect(result).toBeDefined();
@@ -68,9 +68,9 @@ describe('listModelsDynamic', () => {
     expect(result.content[0].text).toMatch(/try|experiment|explore/i);
   });
 
-  it('should remind about true discovery', async () => {
+  it("should remind about true discovery", async () => {
     const result = await listModelsDynamic({
-      query: 'all models',
+      query: "all models",
     });
 
     expect(result).toBeDefined();

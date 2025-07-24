@@ -1,4 +1,4 @@
-import { beforeAll, afterAll } from "vitest";
+import { afterAll, beforeAll } from "vitest";
 
 // Set up test environment
 beforeAll(() => {

@@ -1,38 +1,65 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
-  extractAudioUrl,
-} from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
+import {
+  extractAudioUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
+} from "../lib/utils/tool-base";
 
 export const schema = {
   text: z.string().describe("Text to convert to speech"),
-  voice: z.enum([
-    "alloy", "echo", "fable", "nova", "onyx", "shimmer",
-    "male1", "male2", "female1", "female2", "child"
-  ])
+  voice: z
+    .enum([
+      "alloy",
+      "echo",
+      "fable",
+      "nova",
+      "onyx",
+      "shimmer",
+      "male1",
+      "male2",
+      "female1",
+      "female2",
+      "child",
+    ])
     .default("nova")
     .describe("Voice to use for speech"),
-  model: z.string()
-    .default("fal-ai/text-to-speech")
-    .describe("Speech synthesis model"),
+  model: z.string().default("fal-ai/text-to-speech").describe("Speech synthesis model"),
   speed: z.number().min(0.5).max(2).default(1).describe("Speech speed (0.5=slow, 2=fast)"),
-  emotion: z.enum(["neutral", "happy", "sad", "angry", "surprised", "calm"])
+  emotion: z
+    .enum(["neutral", "happy", "sad", "angry", "surprised", "calm"])
     .optional()
     .describe("Emotional tone for speech"),
-  language: z.enum(["en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh", "ja", "ko"])
+  language: z
+    .enum([
+      "en",
+      "es",
+      "fr",
+      "de",
+      "it",
+      "pt",
+      "pl",
+      "tr",
+      "ru",
+      "nl",
+      "cs",
+      "ar",
+      "zh",
+      "ja",
+      "ko",
+    ])
     .default("en")
     .describe("Language for speech"),
 };
 
 export const metadata: ToolMetadata = {
   name: "textToSpeech",
-  description: "Convert text to natural sounding speech with various voices and emotions. Supports multiple languages",
+  description:
+    "Convert text to natural sounding speech with various voices and emotions. Supports multiple languages",
   annotations: {
     title: "Text to Speech",
     readOnlyHint: true,
@@ -43,8 +70,8 @@ export const metadata: ToolMetadata = {
 
 export default async function textToSpeech(params: InferSchema<typeof schema>) {
   const { text, voice, model, speed, emotion, language } = params;
-  const toolName = 'textToSpeech';
-  
+  const toolName = "textToSpeech";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -74,8 +101,12 @@ export default async function textToSpeech(params: InferSchema<typeof schema>) {
       input.style = emotion;
       input.mood = emotion;
     }
-    
-    debug(toolName, `Generating speech for text: "${text.substring(0, 50)}..."`, { voice, language, speed });
+
+    debug(toolName, `Generating speech for text: "${text.substring(0, 50)}..."`, {
+      voice,
+      language,
+      speed,
+    });
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
@@ -85,6 +116,6 @@ export default async function textToSpeech(params: InferSchema<typeof schema>) {
 
     return formatMediaResult(audioUrl);
   } catch (error: any) {
-    return formatError(error, 'Error generating speech');
+    return formatError(error, "Error generating speech");
   }
 }

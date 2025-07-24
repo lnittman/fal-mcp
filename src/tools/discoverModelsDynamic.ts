@@ -1,12 +1,19 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import { formatError } from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
-import { validateModelDynamic, inferModelCategory, getDynamicModelSuggestions } from "../lib/utils/models";
+import {
+  getDynamicModelSuggestions,
+  inferModelCategory,
+  validateModelDynamic,
+} from "../lib/utils/models";
+import { formatError } from "../lib/utils/tool-base";
 
 export const schema = {
-  operation: z.enum(["validate", "suggest", "infer"])
-    .describe("Operation: validate (check model), suggest (get recommendations), infer (get category from model ID)"),
+  operation: z
+    .enum(["validate", "suggest", "infer"])
+    .describe(
+      "Operation: validate (check model), suggest (get recommendations), infer (get category from model ID)"
+    ),
   modelId: z.string().optional().describe("Model ID to validate or analyze"),
   useCase: z.string().optional().describe("Describe your use case for suggestions"),
 };
@@ -46,27 +53,27 @@ BENEFITS:
 
 export default async function discoverModelsDynamic(params: InferSchema<typeof schema>) {
   const { operation, modelId, useCase } = params;
-  const toolName = 'discoverModelsDynamic';
-  
+  const toolName = "discoverModelsDynamic";
+
   try {
     debug(toolName, `Performing ${operation} operation`, { modelId, useCase });
-    let results: string[] = [];
-    
+    const results: string[] = [];
+
     switch (operation) {
       case "validate": {
         if (!modelId) {
           throw new Error("Model ID is required for validation");
         }
-        
+
         const isValid = await validateModelDynamic(modelId);
-        
+
         if (isValid) {
           results.push(`Model ID format is valid: "${modelId}"`);
           results.push(`\nThis model ID follows the fal-ai naming convention.`);
           results.push(`The actual model will be validated when you use it.`);
-          
+
           const category = inferModelCategory(modelId);
-          if (category !== 'unknown') {
+          if (category !== "unknown") {
             results.push(`\nInferred category: ${category}`);
           }
         } else {
@@ -76,7 +83,7 @@ export default async function discoverModelsDynamic(params: InferSchema<typeof s
         }
         break;
       }
-      
+
       case "suggest": {
         if (!useCase) {
           results.push("Model Discovery Tips:\n");
@@ -90,22 +97,22 @@ export default async function discoverModelsDynamic(params: InferSchema<typeof s
         } else {
           const suggestions = getDynamicModelSuggestions(useCase);
           results.push(`Suggestions for "${useCase}":\n`);
-          suggestions.forEach(s => results.push(`• ${s}`));
+          suggestions.forEach((s) => results.push(`• ${s}`));
         }
         break;
       }
-      
+
       case "infer": {
         if (!modelId) {
           throw new Error("Model ID is required for inference");
         }
-        
+
         const category = inferModelCategory(modelId);
         results.push(`Model: ${modelId}`);
         results.push(`Inferred Category: ${category}`);
-        
-        if (category !== 'unknown') {
-          results.push(`\nThis appears to be a ${category.replace('-', ' ')} model.`);
+
+        if (category !== "unknown") {
+          results.push(`\nThis appears to be a ${category.replace("-", " ")} model.`);
           results.push(`You can use it with the appropriate tool.`);
         } else {
           results.push(`\nCategory couldn't be inferred, but you can still try using it.`);
@@ -114,16 +121,14 @@ export default async function discoverModelsDynamic(params: InferSchema<typeof s
         break;
       }
     }
-    
+
     results.push("\n\nRemember: This is truly dynamic!");
     results.push("Any valid fal-ai model ID will work, even brand new ones.");
-    
+
     return {
-      content: [
-        { type: "text", text: results.join("\n") },
-      ],
+      content: [{ type: "text", text: results.join("\n") }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error in model discovery');
+    return formatError(error, "Error in model discovery");
   }
 }

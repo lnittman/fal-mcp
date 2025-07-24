@@ -1,17 +1,20 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import fs from "fs-extra";
-import path from "path";
 import os from "os";
-import { formatError } from "../lib/utils/tool-base";
+import path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
 import { debug } from "../lib/utils/debug";
+import { formatError } from "../lib/utils/tool-base";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the image to save"),
   outputPath: z.string().describe("Output file path (use ~ for home directory)"),
   width: z.number().optional().describe("Resize width in pixels"),
   height: z.number().optional().describe("Resize height in pixels"),
-  format: z.enum(["png", "jpg", "webp", "ico"]).optional().describe("Output format (defaults to extension from outputPath)"),
+  format: z
+    .enum(["png", "jpg", "webp", "ico"])
+    .optional()
+    .describe("Output format (defaults to extension from outputPath)"),
 };
 
 export const metadata: ToolMetadata = {
@@ -27,19 +30,19 @@ export const metadata: ToolMetadata = {
 
 export default async function saveImage(params: InferSchema<typeof schema>) {
   const { imageUrl, outputPath, width, height, format } = params;
-  const toolName = 'saveImage';
-  
+  const toolName = "saveImage";
+
   try {
     debug(toolName, `Saving image from URL to: ${outputPath}`);
     // Resolve output path (handle ~ for home)
     let resolvedPath: string;
-    if (outputPath.startsWith('~')) {
+    if (outputPath.startsWith("~")) {
       resolvedPath = path.join(os.homedir(), outputPath.slice(1));
     } else if (path.isAbsolute(outputPath)) {
       resolvedPath = outputPath;
     } else {
       // For relative paths, default to Desktop directory for better Claude Desktop compatibility
-      const desktopPath = path.join(os.homedir(), 'Desktop');
+      const desktopPath = path.join(os.homedir(), "Desktop");
       resolvedPath = path.join(desktopPath, outputPath);
     }
 
@@ -52,7 +55,7 @@ export default async function saveImage(params: InferSchema<typeof schema>) {
     if (!response.ok) {
       throw new Error(`Failed to download image: ${response.status}`);
     }
-    
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -61,15 +64,13 @@ export default async function saveImage(params: InferSchema<typeof schema>) {
 
     const stats = await fs.stat(resolvedPath);
     const sizeKB = (stats.size / 1024).toFixed(1);
-    
+
     debug(toolName, `Image saved successfully`, { path: resolvedPath, sizeKB });
 
     return {
-      content: [
-        { type: "text", text: `Saved image to: ${resolvedPath} (${sizeKB} KB)` },
-      ],
+      content: [{ type: "text", text: `Saved image to: ${resolvedPath} (${sizeKB} KB)` }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error saving image');
+    return formatError(error, "Error saving image");
   }
 }

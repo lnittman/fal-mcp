@@ -1,21 +1,26 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
   extractVideoUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
 } from "../lib/utils/tool-base";
 
 export const schema = {
   prompt: z.string().describe("Description of the video content, style, and motion"),
-  model: z.string()
+  model: z
+    .string()
     .default("fal-ai/ltxv-13b-098-distilled")
     .describe("Any fal-ai model ID for video generation"),
-  parameters: z.record(z.any()).optional()
-    .describe("Additional model-specific parameters (e.g., duration, fps, aspect_ratio, num_frames, frame_rate, motion_intensity, style)"),
+  parameters: z
+    .record(z.any())
+    .optional()
+    .describe(
+      "Additional model-specific parameters (e.g., duration, fps, aspect_ratio, num_frames, frame_rate, motion_intensity, style)"
+    ),
 };
 
 export const metadata: ToolMetadata = {
@@ -44,8 +49,8 @@ Remember: Error messages often reveal the correct parameter names and formats.`,
 
 export default async function textToVideo(params: InferSchema<typeof schema>) {
   const { prompt, model, parameters = {} } = params;
-  const toolName = 'textToVideo';
-  
+  const toolName = "textToVideo";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -59,12 +64,12 @@ export default async function textToVideo(params: InferSchema<typeof schema>) {
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
-    
+
     // Extract video URL
     const videoUrl = extractVideoUrl(response, toolName);
-    
+
     return formatMediaResult(videoUrl);
   } catch (error: any) {
-    return formatError(error, 'Error generating video');
+    return formatError(error, "Error generating video");
   }
 }

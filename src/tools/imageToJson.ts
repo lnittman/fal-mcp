@@ -1,22 +1,27 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatError,
-} from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
+import {
+  formatError,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
+} from "../lib/utils/tool-base";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the image to analyze"),
-  model: z.string()
+  model: z
+    .string()
     .default("fal-ai/bagel/understand")
-    .describe("Model ID for image analysis. Default: bagel/understand for vision-language understanding"),
-  prompt: z.string()
+    .describe(
+      "Model ID for image analysis. Default: bagel/understand for vision-language understanding"
+    ),
+  prompt: z
+    .string()
     .default("Describe this image in detail")
     .describe("Question or prompt about the image"),
-  outputFormat: z.enum(["json", "structured", "raw"])
+  outputFormat: z
+    .enum(["json", "structured", "raw"])
     .default("json")
     .describe("Output format for the analysis results"),
 };
@@ -66,8 +71,8 @@ OUTPUT FORMATS:
 
 export default async function imageToJson(params: InferSchema<typeof schema>) {
   const { imageUrl, model, prompt, outputFormat } = params;
-  const toolName = 'imageToJson';
-  
+  const toolName = "imageToJson";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -86,7 +91,7 @@ export default async function imageToJson(params: InferSchema<typeof schema>) {
       query: prompt,
       text: prompt,
     };
-    
+
     debug(toolName, `Analyzing image with prompt: ${prompt}`);
 
     // Submit to fal.ai
@@ -94,7 +99,7 @@ export default async function imageToJson(params: InferSchema<typeof schema>) {
 
     // Format output based on requested format
     let output: any;
-    
+
     if (outputFormat === "raw") {
       // Extract text content
       if (response.text) {
@@ -114,11 +119,9 @@ export default async function imageToJson(params: InferSchema<typeof schema>) {
     }
 
     return {
-      content: [
-        { type: "text", text: output },
-      ],
+      content: [{ type: "text", text: output }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error analyzing image');
+    return formatError(error, "Error analyzing image");
   }
 }

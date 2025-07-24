@@ -1,51 +1,51 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import workflowChain from '../../tools/workflowChain';
+import { beforeEach, describe, expect, it } from "vitest";
+import workflowChain from "../../tools/workflowChain";
 
-describe('workflowChain', () => {
+describe("workflowChain", () => {
   beforeEach(() => {
-    process.env.FAL_MCP_MOCK = 'true';
+    process.env.FAL_MCP_MOCK = "true";
   });
 
-  it('should execute a simple generation workflow', async () => {
+  it("should execute a simple generation workflow", async () => {
     const result = await workflowChain({
       steps: [
         {
-          type: 'generate',
-          model: 'fal-ai/flux/dev',
+          type: "generate",
+          model: "fal-ai/flux/dev",
           parameters: {
-            prompt: 'A cute robot',
-            image_size: 'square',
+            prompt: "A cute robot",
+            image_size: "square",
           },
         },
       ],
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('https://fal.media/mock/');
+    expect(result.content[0].text).toContain("https://fal.media/mock/");
   });
 
-  it('should chain multiple operations', async () => {
+  it("should chain multiple operations", async () => {
     const result = await workflowChain({
       steps: [
         {
-          type: 'generate',
-          model: 'fal-ai/flux/schnell',
+          type: "generate",
+          model: "fal-ai/flux/schnell",
           parameters: {
-            prompt: 'A landscape',
+            prompt: "A landscape",
           },
         },
         {
-          type: 'upscale',
-          model: 'fal-ai/aura-sr',
+          type: "upscale",
+          model: "fal-ai/aura-sr",
           parameters: {
             scale: 4,
           },
         },
         {
-          type: 'transform',
-          model: 'fal-ai/flux-general/image-to-image',
+          type: "transform",
+          model: "fal-ai/flux-general/image-to-image",
           parameters: {
-            prompt: 'Make it sunset',
+            prompt: "Make it sunset",
             strength: 0.5,
           },
         },
@@ -53,29 +53,29 @@ describe('workflowChain', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('https://fal.media/mock/');
+    expect(result.content[0].text).toContain("https://fal.media/mock/");
   });
 
-  it('should handle image to video workflow', async () => {
+  it("should handle image to video workflow", async () => {
     const result = await workflowChain({
       steps: [
         {
-          type: 'generate',
-          model: 'fal-ai/flux/dev',
+          type: "generate",
+          model: "fal-ai/flux/dev",
           parameters: {
-            prompt: 'A dancing cat',
+            prompt: "A dancing cat",
           },
         },
         {
-          type: 'removeBackground',
-          model: 'fal-ai/birefnet',
+          type: "removeBackground",
+          model: "fal-ai/birefnet",
           parameters: {},
         },
         {
-          type: 'animate',
-          model: 'fal-ai/wan-effects',
+          type: "animate",
+          model: "fal-ai/wan-effects",
           parameters: {
-            motion_prompt: 'cat dancing',
+            motion_prompt: "cat dancing",
             duration: 3,
           },
         },
@@ -83,35 +83,35 @@ describe('workflowChain', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('.mp4');
+    expect(result.content[0].text).toContain(".mp4");
   });
 
-  it('should require input image for non-generation workflows', async () => {
+  it("should require input image for non-generation workflows", async () => {
     const result = await workflowChain({
       steps: [
         {
-          type: 'upscale',
-          model: 'fal-ai/aura-sr',
+          type: "upscale",
+          model: "fal-ai/aura-sr",
           parameters: { scale: 2 },
         },
       ],
     });
 
-    expect(result.content[0].text).toContain('Input image required');
+    expect(result.content[0].text).toContain("Input image required");
   });
 
-  it('should work with provided input image', async () => {
+  it("should work with provided input image", async () => {
     const result = await workflowChain({
-      inputImage: 'https://example.com/start.jpg',
+      inputImage: "https://example.com/start.jpg",
       steps: [
         {
-          type: 'removeBackground',
-          model: 'fal-ai/birefnet',
+          type: "removeBackground",
+          model: "fal-ai/birefnet",
           parameters: {},
         },
         {
-          type: 'upscale',
-          model: 'fal-ai/clarity-upscaler',
+          type: "upscale",
+          model: "fal-ai/clarity-upscaler",
           parameters: {
             scale: 2,
             overlapping_factor: 0.6,
@@ -121,25 +121,25 @@ describe('workflowChain', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('https://fal.media/mock/');
+    expect(result.content[0].text).toContain("https://fal.media/mock/");
   });
 
-  it('should accept any model and parameters', async () => {
+  it("should accept any model and parameters", async () => {
     const result = await workflowChain({
       steps: [
         {
-          type: 'generate',
-          model: 'fal-ai/brand-new-model',
+          type: "generate",
+          model: "fal-ai/brand-new-model",
           parameters: {
-            custom_prompt_field: 'test',
+            custom_prompt_field: "test",
             experimental_param: true,
           },
         },
         {
-          type: 'transform',
-          model: 'fal-ai/another-new-model',
+          type: "transform",
+          model: "fal-ai/another-new-model",
           parameters: {
-            transformation_desc: 'make it cool',
+            transformation_desc: "make it cool",
             intensity: 0.8,
           },
         },
@@ -147,6 +147,6 @@ describe('workflowChain', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('https://fal.media/mock/');
+    expect(result.content[0].text).toContain("https://fal.media/mock/");
   });
 });

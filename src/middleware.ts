@@ -1,6 +1,6 @@
-import { type Middleware } from "xmcp";
-import open from "open";
 import dotenv from "dotenv";
+import open from "open";
+import type { Middleware } from "xmcp";
 import { headers } from "xmcp/headers";
 
 dotenv.config({ path: ".env.local" }); // Load .env.local
@@ -9,7 +9,7 @@ const isStdio = process.env.MCP_TRANSPORT === "stdio"; // Detect transport
 
 const authMiddleware: Middleware = async (req, res, next) => {
   let apiKey = process.env.FAL_API_KEY;
-  
+
   if (!isStdio) {
     try {
       const reqHeaders = headers();
@@ -22,12 +22,13 @@ const authMiddleware: Middleware = async (req, res, next) => {
   if (!apiKey) {
     if (isStdio) {
       await open("https://fal.ai/dashboard/keys"); // Open auth webpage
-      return res.status(401).json({ 
-        error: "FAL_API_KEY missing. Browser opened to fal.ai dashboard—copy key to .env.local and restart." 
+      return res.status(401).json({
+        error:
+          "FAL_API_KEY missing. Browser opened to fal.ai dashboard—copy key to .env.local and restart.",
       });
     } else {
-      return res.status(401).json({ 
-        error: "FAL_API_KEY missing. Set in headers (x-fal-api-key) or env." 
+      return res.status(401).json({
+        error: "FAL_API_KEY missing. Set in headers (x-fal-api-key) or env.",
       });
     }
   }

@@ -9,21 +9,21 @@
  */
 export async function validateModelDynamic(modelId: string): Promise<boolean> {
   // Basic format validation
-  if (!modelId || typeof modelId !== 'string') {
+  if (!modelId || typeof modelId !== "string") {
     return false;
   }
-  
+
   // Must start with fal-ai/
   if (!modelId.startsWith("fal-ai/")) {
     return false;
   }
-  
+
   // Must have at least one segment after fal-ai/
   const parts = modelId.split("/");
   if (parts.length < 2 || parts[1].length === 0) {
     return false;
   }
-  
+
   // That's it! The model's actual validity will be determined when used
   return true;
 }
@@ -32,12 +32,12 @@ export async function validateModelDynamic(modelId: string): Promise<boolean> {
  * Format a model ID for display (simple string manipulation only)
  */
 export function formatModelName(modelId: string): string {
-  const parts = modelId.split('/');
+  const parts = modelId.split("/");
   const name = parts[parts.length - 1];
   return name
-    .replace(/-/g, ' ')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
+    .replace(/-/g, " ")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 /**
@@ -57,7 +57,7 @@ export function getDynamicModelSuggestions(useCase: string): string[] {
     "Use listModelsDynamic to explore available models",
     "Try models that seem relevant based on their names",
     "Learn from API responses and errors",
-    "Build your own understanding through experimentation"
+    "Build your own understanding through experimentation",
   ];
 }
 

@@ -1,14 +1,16 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import * as fs from "fs/promises";
-import * as path from "path";
 import * as os from "os";
-import { formatError } from "../lib/utils/tool-base";
+import * as path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
 import { debug } from "../lib/utils/debug";
+import { formatError } from "../lib/utils/tool-base";
 
 export const schema = {
   url: z.string().describe("URL of the file to download (supports fal.ai storage URLs and others)"),
-  outputPath: z.string().describe("Local path where to save the file (supports ~ for home directory)"),
+  outputPath: z
+    .string()
+    .describe("Local path where to save the file (supports ~ for home directory)"),
   overwrite: z.boolean().default(false).describe("Overwrite existing file if it exists"),
 };
 
@@ -50,11 +52,11 @@ WORKFLOW EXAMPLE:
 
 export default async function downloadFile(params: InferSchema<typeof schema>) {
   const { url, outputPath, overwrite } = params;
-  const toolName = 'downloadFile';
+  const toolName = "downloadFile";
 
   try {
     // Resolve output path
-    const resolvedPath = outputPath.startsWith('~') 
+    const resolvedPath = outputPath.startsWith("~")
       ? path.join(os.homedir(), outputPath.slice(1))
       : outputPath;
 
@@ -68,7 +70,7 @@ export default async function downloadFile(params: InferSchema<typeof schema>) {
         throw new Error(`File already exists: ${resolvedPath}. Set overwrite: true to replace it.`);
       } catch (error: any) {
         // File doesn't exist, which is what we want
-        if (error.message.includes('File already exists')) {
+        if (error.message.includes("File already exists")) {
           throw error;
         }
       }
@@ -97,7 +99,7 @@ export default async function downloadFile(params: InferSchema<typeof schema>) {
     const fileName = path.basename(resolvedPath);
 
     // Try to get content type
-    const contentType = response.headers.get('content-type') || 'Unknown';
+    const contentType = response.headers.get("content-type") || "Unknown";
 
     return {
       content: [
@@ -110,11 +112,11 @@ export default async function downloadFile(params: InferSchema<typeof schema>) {
 **Type**: ${contentType}
 **Saved to**: ${resolvedPath}
 
-The file is now available on your local filesystem.`
+The file is now available on your local filesystem.`,
         },
       ],
     };
   } catch (error: any) {
-    return formatError(error, 'Error downloading file');
+    return formatError(error, "Error downloading file");
   }
 }

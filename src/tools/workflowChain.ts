@@ -1,24 +1,26 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import fs from "fs-extra";
-import path from "path";
 import os from "os";
+import path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
+import { debug } from "../lib/utils/debug";
 import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
   extractImageUrl,
   extractVideoUrl,
   formatError,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
 } from "../lib/utils/tool-base";
-import { debug } from "../lib/utils/debug";
 
 // Define available workflow steps with generic parameters
 const workflowSteps = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("generate"),
     model: z.string().default("fal-ai/flux/dev"),
-    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., prompt, image_size, style)"),
+    parameters: z
+      .record(z.any())
+      .describe("Model-specific parameters (e.g., prompt, image_size, style)"),
   }),
   z.object({
     type: z.literal("removeBackground"),
@@ -28,7 +30,9 @@ const workflowSteps = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("upscale"),
     model: z.string().default("fal-ai/aura-sr"),
-    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., scale, upscaling_factor)"),
+    parameters: z
+      .record(z.any())
+      .describe("Model-specific parameters (e.g., scale, upscaling_factor)"),
   }),
   z.object({
     type: z.literal("transform"),
@@ -38,15 +42,26 @@ const workflowSteps = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("animate"),
     model: z.string().default("fal-ai/wan-effects"),
-    parameters: z.record(z.any()).describe("Model-specific parameters (e.g., motion_prompt, duration, fps)"),
+    parameters: z
+      .record(z.any())
+      .describe("Model-specific parameters (e.g., motion_prompt, duration, fps)"),
   }),
 ]);
 
 export const schema = {
-  inputImage: z.string().optional().describe("URL or path of input image (optional for workflows starting with generation)"),
+  inputImage: z
+    .string()
+    .optional()
+    .describe("URL or path of input image (optional for workflows starting with generation)"),
   steps: z.array(workflowSteps).min(1).max(5).describe("Sequence of operations to perform"),
-  outputPath: z.string().optional().describe("Path to save final result (use ~ for home directory)"),
-  saveIntermediates: z.boolean().default(false).describe("Save intermediate results from each step"),
+  outputPath: z
+    .string()
+    .optional()
+    .describe("Path to save final result (use ~ for home directory)"),
+  saveIntermediates: z
+    .boolean()
+    .default(false)
+    .describe("Save intermediate results from each step"),
 };
 
 export const metadata: ToolMetadata = {
@@ -74,8 +89,8 @@ Remember: Error messages often reveal the correct parameter names and formats.`,
 
 export default async function workflowChain(params: InferSchema<typeof schema>) {
   const { inputImage, steps, outputPath, saveIntermediates } = params;
-  const toolName = 'workflowChain';
-  
+  const toolName = "workflowChain";
+
   try {
     // Initialize fal client once for all steps
     initializeFalClient(toolName);
@@ -92,27 +107,27 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
     // Execute each step
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
-      
+
       try {
         // Validate model for steps that have models
-        if ('model' in step && step.model) {
+        if ("model" in step && step.model) {
           await validateModel(step.model, toolName);
         }
-        
+
         debug(toolName, `Executing step ${i + 1}: ${step.type}`);
-        
+
         switch (step.type) {
           case "generate": {
             const modelId = step.model || "fal-ai/flux/dev";
             const input = {
               ...step.parameters,
             };
-            
+
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractImageUrl(response, toolName);
             break;
           }
-          
+
           case "removeBackground": {
             const input = {
               ...step.parameters,
@@ -120,12 +135,12 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
               image_url: currentResult,
               image: currentResult,
             };
-            
+
             const response = await submitToFal(step.model, input, toolName);
             currentResult = extractImageUrl(response, toolName);
             break;
           }
-          
+
           case "upscale": {
             const modelId = step.model || "fal-ai/aura-sr";
             const input = {
@@ -134,12 +149,12 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
               image_url: currentResult,
               image: currentResult,
             };
-            
+
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractImageUrl(response, toolName);
             break;
           }
-          
+
           case "transform": {
             const modelId = step.model || "fal-ai/flux-general/image-to-image";
             const input = {
@@ -148,12 +163,12 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
               image_url: currentResult,
               image: currentResult,
             };
-            
+
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractImageUrl(response, toolName);
             break;
           }
-          
+
           case "animate": {
             const modelId = step.model || "fal-ai/wan-effects";
             const input = {
@@ -163,35 +178,36 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
               image: currentResult,
               first_frame_image: currentResult,
             };
-            
+
             const response = await submitToFal(modelId, input, toolName);
             currentResult = extractVideoUrl(response, toolName);
             break;
           }
         }
-        
+
         // Store intermediate result
         intermediateResults.push({
           step: i + 1,
           type: step.type,
           url: currentResult,
         });
-        
+
         debug(toolName, `Step ${i + 1} completed: ${step.type}`, { url: currentResult });
-        
+
         // Save intermediate if requested
         if (saveIntermediates && outputPath) {
-          const resolvedPath = outputPath.startsWith('~') 
+          const resolvedPath = outputPath.startsWith("~")
             ? path.join(os.homedir(), outputPath.slice(1))
             : path.resolve(outputPath);
-          
+
           const dir = path.dirname(resolvedPath);
           await fs.ensureDir(dir);
-          
+
           const baseName = path.basename(resolvedPath, path.extname(resolvedPath));
-          const ext = currentResult.includes("video") || currentResult.includes(".mp4") ? ".mp4" : ".png";
+          const ext =
+            currentResult.includes("video") || currentResult.includes(".mp4") ? ".mp4" : ".png";
           const stepPath = path.join(dir, `${baseName}_step${i + 1}_${step.type}${ext}`);
-          
+
           const response = await fetch(currentResult);
           const buffer = Buffer.from(await response.arrayBuffer());
           await fs.writeFile(stepPath, buffer);
@@ -205,28 +221,24 @@ export default async function workflowChain(params: InferSchema<typeof schema>) 
 
     // Save final result if path provided
     if (outputPath) {
-      const resolvedPath = outputPath.startsWith('~') 
+      const resolvedPath = outputPath.startsWith("~")
         ? path.join(os.homedir(), outputPath.slice(1))
         : path.resolve(outputPath);
-      
+
       const response = await fetch(currentResult);
       const buffer = Buffer.from(await response.arrayBuffer());
       await fs.writeFile(resolvedPath, buffer);
-      
+
       return {
-        content: [
-          { type: "text", text: `Workflow complete. Result saved to: ${resolvedPath}` },
-        ],
+        content: [{ type: "text", text: `Workflow complete. Result saved to: ${resolvedPath}` }],
       };
     }
 
     // Return final URL if no output path
     return {
-      content: [
-        { type: "text", text: currentResult },
-      ],
+      content: [{ type: "text", text: currentResult }],
     };
   } catch (error: any) {
-    return formatError(error, 'Workflow error');
+    return formatError(error, "Workflow error");
   }
 }

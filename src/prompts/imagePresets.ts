@@ -1,4 +1,4 @@
-import { type PromptMetadata } from "xmcp";
+import type { PromptMetadata } from "xmcp";
 
 // Define common style presets for image generation
 export const pixelArtPrompt: PromptMetadata = {
@@ -20,7 +20,7 @@ export const pixelArtPrompt: PromptMetadata = {
       name: "resolution",
       description: "Pixel grid size (e.g., '16x16', '32x32', '64x64')",
       required: false,
-    }
+    },
   ],
 };
 
@@ -43,7 +43,7 @@ export const animePrompt: PromptMetadata = {
       name: "setting",
       description: "Background setting (e.g., 'school', 'fantasy world', 'city')",
       required: false,
-    }
+    },
   ],
 };
 
@@ -66,7 +66,7 @@ export const photorealisticPrompt: PromptMetadata = {
       name: "camera",
       description: "Camera settings (e.g., 'shallow DoF', 'wide angle', 'macro')",
       required: false,
-    }
+    },
   ],
 };
 
@@ -89,54 +89,53 @@ export const watercolorPrompt: PromptMetadata = {
       name: "colors",
       description: "Color palette (e.g., 'vibrant', 'muted', 'monochrome')",
       required: false,
-    }
+    },
   ],
 };
 
 // Handler to build the actual prompt from arguments
 export function buildPrompt(promptName: string, args: Record<string, string>): string {
   switch (promptName) {
-    case "pixel_art":
+    case "pixel_art": {
       const pixelBase = `pixel art style, ${args.subject}`;
       const pixelParts = [pixelBase];
       if (args.colorPalette) pixelParts.push(`${args.colorPalette} color palette`);
       if (args.resolution) pixelParts.push(`${args.resolution} pixel grid`);
       pixelParts.push("retro 8-bit aesthetic, clean pixels, no anti-aliasing");
       return pixelParts.join(", ");
-      
-    case "anime_style":
+    }
+
+    case "anime_style": {
       const animeBase = `anime manga art style, ${args.character}`;
       const animeParts = [animeBase];
       if (args.mood) animeParts.push(`${args.mood} mood`);
       if (args.setting) animeParts.push(`${args.setting} background`);
       animeParts.push("detailed anime illustration, vibrant colors");
       return animeParts.join(", ");
-      
-    case "photorealistic":
+    }
+
+    case "photorealistic": {
       const photoBase = `photorealistic, ${args.subject}`;
       const photoParts = [photoBase];
       if (args.lighting) photoParts.push(`${args.lighting} lighting`);
       if (args.camera) photoParts.push(`${args.camera} photography`);
       photoParts.push("highly detailed, professional photography");
       return photoParts.join(", ");
-      
-    case "watercolor":
+    }
+
+    case "watercolor": {
       const waterBase = `watercolor painting, ${args.subject}`;
       const waterParts = [waterBase];
       if (args.technique) waterParts.push(`${args.technique} technique`);
       if (args.colors) waterParts.push(`${args.colors} colors`);
       waterParts.push("artistic watercolor style, paint texture visible");
       return waterParts.join(", ");
-      
+    }
+
     default:
       throw new Error(`Unknown prompt: ${promptName}`);
   }
 }
 
 // Export all prompts
-export const prompts = [
-  pixelArtPrompt,
-  animePrompt,
-  photorealisticPrompt,
-  watercolorPrompt,
-];
+export const prompts = [pixelArtPrompt, animePrompt, photorealisticPrompt, watercolorPrompt];

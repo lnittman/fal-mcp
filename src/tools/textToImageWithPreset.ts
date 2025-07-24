@@ -1,22 +1,24 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
-  extractImageUrl,
-} from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
+import {
+  extractImageUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
+} from "../lib/utils/tool-base";
 
 export const schema = {
   prompt: z.string().describe("Complete prompt including subject and style"),
-  model: z.string()
-    .default("fal-ai/flux/dev")
-    .describe("Any fal-ai model ID for image generation"),
-  parameters: z.record(z.any()).optional()
-    .describe("Additional model-specific parameters (e.g., image_size, num_inference_steps, guidance_scale, style modifiers)"),
+  model: z.string().default("fal-ai/flux/dev").describe("Any fal-ai model ID for image generation"),
+  parameters: z
+    .record(z.any())
+    .optional()
+    .describe(
+      "Additional model-specific parameters (e.g., image_size, num_inference_steps, guidance_scale, style modifiers)"
+    ),
 };
 
 export const metadata: ToolMetadata = {
@@ -40,8 +42,8 @@ Remember: The best styles come from creative experimentation, not fixed presets.
 
 export default async function textToImageStyled(params: InferSchema<typeof schema>) {
   const { prompt, model, parameters = {} } = params;
-  const toolName = 'textToImageStyled';
-  
+  const toolName = "textToImageStyled";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -57,12 +59,12 @@ export default async function textToImageStyled(params: InferSchema<typeof schem
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
-    
+
     // Extract image URL
     const imageUrl = extractImageUrl(response, toolName);
 
     return formatMediaResult(imageUrl);
   } catch (error: any) {
-    return formatError(error, 'Error generating styled image');
+    return formatError(error, "Error generating styled image");
   }
 }

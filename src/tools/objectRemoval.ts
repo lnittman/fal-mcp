@@ -1,27 +1,54 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import * as fs from "fs-extra";
-import * as path from "path";
 import * as os from "os";
-import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
-  extractImageUrl,
-} from "../lib/utils/tool-base";
+import * as path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
 import { debug } from "../lib/utils/debug";
+import {
+  extractImageUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
+} from "../lib/utils/tool-base";
 
 export const schema = {
-  imageUrl: z.string().optional().describe("URL of the input image to process. Accepts direct URLs or data URLs"),
-  imagePath: z.string().optional().describe("Local file path of the input image. Supports ~ for home directory. Either imageUrl or imagePath must be provided"),
-  maskUrl: z.string().describe("URL of a mask image defining removal areas. White pixels = remove, black pixels = keep. Use external tools to generate masks first"),
-  model: z.string()
+  imageUrl: z
+    .string()
+    .optional()
+    .describe("URL of the input image to process. Accepts direct URLs or data URLs"),
+  imagePath: z
+    .string()
+    .optional()
+    .describe(
+      "Local file path of the input image. Supports ~ for home directory. Either imageUrl or imagePath must be provided"
+    ),
+  maskUrl: z
+    .string()
+    .describe(
+      "URL of a mask image defining removal areas. White pixels = remove, black pixels = keep. Use external tools to generate masks first"
+    ),
+  model: z
+    .string()
     .default("fal-ai/imageutils/lama")
-    .describe("Model selection: 'imageutils/lama' for automatic inpainting (best for general removal), 'stable-diffusion' for creative replacement with custom prompts"),
-  dilateAmount: z.number().min(0).max(50).default(10).describe("Pixels to expand the mask area for cleaner edges. Higher values remove more context around objects"),
-  backgroundPrompt: z.string().optional().describe("For stable-diffusion only: Description of what should replace the removed area (e.g., 'grassy field', 'wooden floor', 'clear blue sky')"),
+    .describe(
+      "Model selection: 'imageutils/lama' for automatic inpainting (best for general removal), 'stable-diffusion' for creative replacement with custom prompts"
+    ),
+  dilateAmount: z
+    .number()
+    .min(0)
+    .max(50)
+    .default(10)
+    .describe(
+      "Pixels to expand the mask area for cleaner edges. Higher values remove more context around objects"
+    ),
+  backgroundPrompt: z
+    .string()
+    .optional()
+    .describe(
+      "For stable-diffusion only: Description of what should replace the removed area (e.g., 'grassy field', 'wooden floor', 'clear blue sky')"
+    ),
 };
 
 export const metadata: ToolMetadata = {
@@ -62,8 +89,8 @@ EXAMPLES:
 
 export default async function objectRemoval(params: InferSchema<typeof schema>) {
   const { imageUrl, imagePath, model, maskUrl, dilateAmount, backgroundPrompt } = params;
-  const toolName = 'objectRemoval';
-  
+  const toolName = "objectRemoval";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -78,23 +105,21 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
     let inputUrl = imageUrl;
     if (imagePath && !imageUrl) {
       // Resolve path (handle ~ for home)
-      const resolvedPath = imagePath.startsWith('~') 
+      const resolvedPath = imagePath.startsWith("~")
         ? path.join(os.homedir(), imagePath.slice(1))
         : path.resolve(imagePath);
-      
+
       // Check if file exists
-      if (!await fs.pathExists(resolvedPath)) {
+      if (!(await fs.pathExists(resolvedPath))) {
         throw new Error(`File not found: ${resolvedPath}`);
       }
-      
+
       // Read and convert to base64
       const buffer = await fs.readFile(resolvedPath);
-      const base64 = buffer.toString('base64');
+      const base64 = buffer.toString("base64");
       const ext = path.extname(resolvedPath).toLowerCase();
-      const mimeType = ext === '.png' ? 'image/png' : 
-                       ext === '.webp' ? 'image/webp' : 
-                       'image/jpeg';
-      
+      const mimeType = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+
       inputUrl = `data:${mimeType};base64,${base64}`;
     }
 
@@ -110,20 +135,20 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
       mask: maskUrl,
       mask_image: maskUrl,
     };
-    
+
     // Add optional parameters if provided
     if (dilateAmount !== undefined) {
       input.dilate_mask = dilateAmount > 0;
       input.dilate_amount = dilateAmount;
       input.dilation = dilateAmount;
     }
-    
+
     if (backgroundPrompt) {
       input.prompt = backgroundPrompt;
       input.inpaint_prompt = backgroundPrompt;
       input.fill_prompt = backgroundPrompt;
     }
-    
+
     debug(toolName, `Removing objects with model ${model}`);
 
     // Submit to fal.ai
@@ -134,6 +159,6 @@ export default async function objectRemoval(params: InferSchema<typeof schema>) 
 
     return formatMediaResult(resultUrl);
   } catch (error: any) {
-    return formatError(error, 'Error removing object');
+    return formatError(error, "Error removing object");
   }
 }

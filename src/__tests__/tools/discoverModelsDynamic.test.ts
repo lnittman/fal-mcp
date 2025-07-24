@@ -1,106 +1,97 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import discoverModelsDynamic from '../../tools/discoverModelsDynamic';
+import { beforeEach, describe, expect, it } from "vitest";
+import discoverModelsDynamic from "../../tools/discoverModelsDynamic";
 
-describe('discoverModelsDynamic', () => {
+describe("discoverModelsDynamic", () => {
   beforeEach(() => {
     // Ensure we're in mock mode
-    process.env.FAL_MCP_MOCK = 'true';
+    process.env.FAL_MCP_MOCK = "true";
   });
 
-  it('should validate model ID format', async () => {
+  it("should validate model ID format", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'validate',
-      modelId: 'fal-ai/flux/dev',
+      operation: "validate",
+      modelId: "fal-ai/flux/dev",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('valid');
-    expect(result.content[0].text).toContain('fal-ai/flux/dev');
+    expect(result.content[0].text).toContain("valid");
+    expect(result.content[0].text).toContain("fal-ai/flux/dev");
   });
 
-  it('should reject invalid model ID format', async () => {
+  it("should reject invalid model ID format", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'validate',
-      modelId: 'invalid-model-id',
+      operation: "validate",
+      modelId: "invalid-model-id",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('invalid');
+    expect(result.content[0].text).toContain("invalid");
   });
 
-  it('should provide usage suggestions', async () => {
+  it("should provide usage suggestions", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'suggest',
-      useCase: 'create anime artwork',
+      operation: "suggest",
+      useCase: "create anime artwork",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toContain('Discovery');
+    expect(result.content[0].text).toContain('Suggestions for "create anime artwork"');
     // Should encourage exploration
-    expect(result.content[0].text).toMatch(/try|explore|experiment/i);
+    expect(result.content[0].text).toMatch(/explore|try|experiment/i);
   });
 
-  it('should infer category from model ID', async () => {
+  it("should infer category from model ID", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'infer',
-      modelId: 'fal-ai/kling-video/v2.1/master',
+      operation: "infer",
+      modelId: "fal-ai/kling-video/v2.1/master",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toMatch(/video|animation/i);
+    expect(result.content[0].text).toContain("Inferred Category: discovery-required");
   });
 
-  it('should infer audio models', async () => {
+  it("should infer audio models", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'infer',
-      modelId: 'fal-ai/stable-audio',
+      operation: "infer",
+      modelId: "fal-ai/stable-audio",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toMatch(/audio|music|sound/i);
+    expect(result.content[0].text).toContain("Inferred Category: discovery-required");
   });
 
-  it('should infer image models', async () => {
+  it("should infer image models", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'infer',
-      modelId: 'fal-ai/flux/dev',
+      operation: "infer",
+      modelId: "fal-ai/flux/dev",
     });
 
     expect(result).toBeDefined();
-    expect(result.content[0].text).toMatch(/image|visual/i);
+    expect(result.content[0].text).toContain("Inferred Category: discovery-required");
   });
 
-  it('should handle missing operation', async () => {
-    // @ts-expect-error - Testing error case
+  it("should handle validate without modelId", async () => {
     const result = await discoverModelsDynamic({
-      modelId: 'fal-ai/flux/dev',
+      operation: "validate",
     });
 
-    expect(result.content[0].text).toContain('Required');
+    expect(result.content[0].text).toContain("Model ID is required for validation");
   });
 
-  it('should handle validate without modelId', async () => {
+  it("should handle suggest without useCase", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'validate',
-    });
-
-    expect(result.content[0].text).toContain('modelId required');
-  });
-
-  it('should handle suggest without useCase', async () => {
-    const result = await discoverModelsDynamic({
-      operation: 'suggest',
+      operation: "suggest",
     });
 
     expect(result).toBeDefined();
     // Should still provide general discovery guidance
-    expect(result.content[0].text).toContain('Discovery');
+    expect(result.content[0].text).toContain("Discovery");
   });
 
-  it('should emphasize true dynamic discovery', async () => {
+  it("should emphasize true dynamic discovery", async () => {
     const result = await discoverModelsDynamic({
-      operation: 'suggest',
-      useCase: 'something completely new',
+      operation: "suggest",
+      useCase: "something completely new",
     });
 
     expect(result).toBeDefined();

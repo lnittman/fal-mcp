@@ -1,7 +1,7 @@
 import * as fal from "@fal-ai/serverless-client";
-import { validateModelDynamic } from "./models";
-import { formatErrorMessage } from "./errors";
 import { debug } from "./debug";
+import { formatErrorMessage } from "./errors";
+import { validateModelDynamic } from "./models";
 
 /**
  * Base configuration for all fal.ai tools
@@ -33,7 +33,7 @@ export interface BatchResult {
  * Initialize fal client with credentials
  */
 export function initializeFalClient(toolName: string): void {
-  debug(toolName, 'Initializing fal client');
+  debug(toolName, "Initializing fal client");
   fal.config({
     credentials: process.env.FAL_API_KEY,
   });
@@ -45,7 +45,9 @@ export function initializeFalClient(toolName: string): void {
 export async function validateModel(model: string, toolName: string): Promise<void> {
   const isValid = await validateModelDynamic(model);
   if (!isValid) {
-    throw new Error(`Invalid model ID format '${model}'. Model IDs should start with 'fal-ai/'. Example: fal-ai/flux/dev`);
+    throw new Error(
+      `Invalid model ID format '${model}'. Model IDs should start with 'fal-ai/'. Example: fal-ai/flux/dev`
+    );
   }
   debug(toolName, `Using model: ${model}`);
 }
@@ -56,66 +58,70 @@ export async function validateModel(model: string, toolName: string): Promise<vo
  */
 function getMockResponse(model: string, input: any, toolName: string): any {
   const timestamp = Date.now();
-  
+
   // Determine response format based on the calling tool
   // This is ONLY for mocking - real API responses are handled dynamically
-  
+
   // Tools that expect image responses
-  if (toolName.includes('Image') && !toolName.includes('toVideo') && !toolName.includes('toJson') ||
-      toolName === 'backgroundRemoval' || 
-      toolName === 'objectRemoval' ||
-      toolName === 'upscaleImage' ||
-      toolName === 'textToImageStyled') {
+  if (
+    (toolName.includes("Image") && !toolName.includes("toVideo") && !toolName.includes("toJson")) ||
+    toolName === "backgroundRemoval" ||
+    toolName === "objectRemoval" ||
+    toolName === "upscaleImage" ||
+    toolName === "textToImageStyled"
+  ) {
     return {
-      images: [{ 
-        url: `https://fal.media/mock/${timestamp}/image.png`,
-        width: 1024,
-        height: 1024,
-        content_type: "image/png"
-      }],
+      images: [
+        {
+          url: `https://fal.media/mock/${timestamp}/image.png`,
+          width: 1024,
+          height: 1024,
+          content_type: "image/png",
+        },
+      ],
       // Also include alternate formats the API might return
       image: {
         url: `https://fal.media/mock/${timestamp}/image.png`,
         width: 1024,
-        height: 1024
-      }
+        height: 1024,
+      },
     };
   }
-  
+
   // Tools that expect video responses
-  if (toolName.includes('Video')) {
+  if (toolName.includes("Video")) {
     return {
-      video: { 
+      video: {
         url: `https://fal.media/mock/${timestamp}/video.mp4`,
         duration: input.duration || 4,
-        fps: input.fps || 24
-      }
+        fps: input.fps || 24,
+      },
     };
   }
-  
+
   // Tools that expect audio responses
-  if (toolName.includes('Audio') || toolName === 'textToSpeech') {
+  if (toolName.includes("Audio") || toolName === "textToSpeech") {
     return {
       audio_url: `https://fal.media/mock/${timestamp}/audio.mp3`,
-      duration: input.duration || 10
+      duration: input.duration || 10,
     };
   }
-  
+
   // Tools that expect text/JSON responses
-  if (toolName === 'speechToText') {
+  if (toolName === "speechToText") {
     return {
       text: "This is a mock transcription of the audio content.",
-      chunks: [{ text: "This is a mock transcription", timestamp: [0, 3] }]
+      chunks: [{ text: "This is a mock transcription", timestamp: [0, 3] }],
     };
   }
-  
-  if (toolName === 'imageToJson') {
+
+  if (toolName === "imageToJson") {
     return {
       text: "Mock analysis: The image contains various objects.",
-      data: { objects: ["object1", "object2"], confidence: 0.95 }
+      data: { objects: ["object1", "object2"], confidence: 0.95 },
     };
   }
-  
+
   // Generic response that could work for any tool
   return {
     url: `https://fal.media/mock/${timestamp}/result.bin`,
@@ -124,7 +130,7 @@ function getMockResponse(model: string, input: any, toolName: string): any {
     audio_url: `https://fal.media/mock/${timestamp}/result.mp3`,
     text: "Mock response",
     success: true,
-    mock: true
+    mock: true,
   };
 }
 
@@ -137,30 +143,30 @@ export async function submitToFal<T = any>(
   toolName: string
 ): Promise<T> {
   debug(toolName, `Submitting to model: ${model}`);
-  debug(toolName, 'Input:', input);
-  
+  debug(toolName, "Input:", input);
+
   // Check if we're in mock mode
-  if (process.env.FAL_MCP_MOCK === 'true') {
-    debug(toolName, 'MOCK MODE: Returning mock response');
+  if (process.env.FAL_MCP_MOCK === "true") {
+    debug(toolName, "MOCK MODE: Returning mock response");
     const mockResponse = getMockResponse(model, input, toolName);
-    debug(toolName, 'Mock response:', mockResponse);
-    
+    debug(toolName, "Mock response:", mockResponse);
+
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     return mockResponse as T;
   }
-  
+
   try {
-    const result = await fal.subscribe(model, {
+    const result = (await fal.subscribe(model, {
       input,
       logs: false,
-    }) as T;
-    
-    debug(toolName, 'Response received:', result ? Object.keys(result) : 'null');
+    })) as T;
+
+    debug(toolName, "Response received:", result ? Object.keys(result) : "null");
     return result;
   } catch (error) {
-    debug(toolName, 'Request failed:', error);
+    debug(toolName, "Request failed:", error);
     throw error;
   }
 }
@@ -170,9 +176,7 @@ export async function submitToFal<T = any>(
  */
 export function formatMediaResult(url: string): { content: Array<{ type: string; text: string }> } {
   return {
-    content: [
-      { type: "text", text: url },
-    ],
+    content: [{ type: "text", text: url }],
   };
 }
 
@@ -181,16 +185,16 @@ export function formatMediaResult(url: string): { content: Array<{ type: string;
  */
 export function formatDataResult(data: any): { content: Array<{ type: string; text: string }> } {
   return {
-    content: [
-      { type: "text", text: JSON.stringify(data, null, 2) },
-    ],
+    content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
   };
 }
 
 /**
  * Format a batch operation result
  */
-export function formatBatchResult(result: BatchResult): { content: Array<{ type: string; text: string }> } {
+export function formatBatchResult(result: BatchResult): {
+  content: Array<{ type: string; text: string }>;
+} {
   let summary = `Processed ${result.processed} items`;
   if (result.skipped > 0) {
     summary += ` (${result.skipped} skipped)`;
@@ -199,22 +203,21 @@ export function formatBatchResult(result: BatchResult): { content: Array<{ type:
     summary += ` (${result.errors} errors)`;
   }
   summary += `. ${result.summary}`;
-  
+
   return {
-    content: [
-      { type: "text", text: summary },
-    ],
+    content: [{ type: "text", text: summary }],
   };
 }
 
 /**
  * Format an error result
  */
-export function formatError(error: any, prefix: string): { content: Array<{ type: string; text: string }> } {
+export function formatError(
+  error: any,
+  prefix: string
+): { content: Array<{ type: string; text: string }> } {
   return {
-    content: [
-      { type: "text", text: formatErrorMessage(prefix, error) },
-    ],
+    content: [{ type: "text", text: formatErrorMessage(prefix, error) }],
   };
 }
 
@@ -222,8 +225,8 @@ export function formatError(error: any, prefix: string): { content: Array<{ type
  * Extract image URL from various response formats
  */
 export function extractImageUrl(response: any, toolName: string): string {
-  debug(toolName, 'Extracting image URL from response');
-  
+  debug(toolName, "Extracting image URL from response");
+
   // Try common patterns
   if (response.images?.[0]?.url) {
     return response.images[0].url;
@@ -231,7 +234,7 @@ export function extractImageUrl(response: any, toolName: string): string {
   if (response.image?.url) {
     return response.image.url;
   }
-  if (response.image && typeof response.image === 'string') {
+  if (response.image && typeof response.image === "string") {
     return response.image;
   }
   if (response.output?.image) {
@@ -240,20 +243,20 @@ export function extractImageUrl(response: any, toolName: string): string {
   if (response.url) {
     return response.url;
   }
-  if (typeof response === 'string' && response.startsWith('http')) {
+  if (typeof response === "string" && response.startsWith("http")) {
     return response;
   }
-  
-  debug(toolName, 'Could not extract image URL from:', response);
-  throw new Error('No image URL found in response');
+
+  debug(toolName, "Could not extract image URL from:", response);
+  throw new Error("No image URL found in response");
 }
 
 /**
  * Extract video URL from various response formats
  */
 export function extractVideoUrl(response: any, toolName: string): string {
-  debug(toolName, 'Extracting video URL from response');
-  
+  debug(toolName, "Extracting video URL from response");
+
   // Try common patterns
   if (response.video?.url) {
     return response.video.url;
@@ -270,20 +273,20 @@ export function extractVideoUrl(response: any, toolName: string): string {
   if (response.url) {
     return response.url;
   }
-  if (typeof response === 'string' && response.startsWith('http')) {
+  if (typeof response === "string" && response.startsWith("http")) {
     return response;
   }
-  
-  debug(toolName, 'Could not extract video URL from:', response);
-  throw new Error('No video URL found in response');
+
+  debug(toolName, "Could not extract video URL from:", response);
+  throw new Error("No video URL found in response");
 }
 
 /**
  * Extract audio URL from various response formats
  */
 export function extractAudioUrl(response: any, toolName: string): string {
-  debug(toolName, 'Extracting audio URL from response');
-  
+  debug(toolName, "Extracting audio URL from response");
+
   // Try common patterns
   if (response.audio_url) {
     return response.audio_url;
@@ -297,11 +300,10 @@ export function extractAudioUrl(response: any, toolName: string): string {
   if (Array.isArray(response.audio) && response.audio[0]?.url) {
     return response.audio[0].url;
   }
-  if (typeof response === 'string' && response.startsWith('http')) {
+  if (typeof response === "string" && response.startsWith("http")) {
     return response;
   }
-  
-  debug(toolName, 'Could not extract audio URL from:', response);
-  throw new Error('No audio URL found in response');
-}
 
+  debug(toolName, "Could not extract audio URL from:", response);
+  throw new Error("No audio URL found in response");
+}

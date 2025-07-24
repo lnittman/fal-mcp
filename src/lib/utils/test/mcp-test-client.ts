@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
  * MCP Test Client for fal-mcp
- * 
+ *
  * This client simulates an AI agent using the fal-mcp tools,
  * allowing us to test tool chaining, parameter discovery, and error handling.
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio';
-import { spawn } from 'child_process';
-import path from 'path';
+import { Client } from "@modelcontextprotocol/sdk/client/index";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio";
+import { spawn } from "child_process";
+import path from "path";
 
 interface TestScenario {
   name: string;
@@ -31,33 +31,36 @@ class MCPTestClient {
   private savedResults: Map<string, any> = new Map();
 
   async connect() {
-    const serverPath = path.join(__dirname, '../../dist/index.js');
+    const serverPath = path.join(__dirname, "../../dist/index.js");
     const transport = new StdioClientTransport({
-      command: 'node',
+      command: "node",
       args: [serverPath],
       env: {
         ...process.env,
-        FAL_MCP_MOCK: 'true', // Always use mock mode for tests
-        FAL_MCP_DEBUG: 'true',
+        FAL_MCP_MOCK: "true", // Always use mock mode for tests
+        FAL_MCP_DEBUG: "true",
       },
     });
 
-    this.client = new Client({
-      name: 'test-client',
-      version: '1.0.0',
-    }, {
-      capabilities: {
-        tools: true,
+    this.client = new Client(
+      {
+        name: "test-client",
+        version: "1.0.0",
       },
-    });
+      {
+        capabilities: {
+          tools: true,
+        },
+      }
+    );
 
     await this.client.connect(transport);
-    console.log('✅ Connected to MCP server');
+    console.log("✅ Connected to MCP server");
   }
 
   async disconnect() {
     await this.client?.close();
-    console.log('👋 Disconnected from MCP server');
+    console.log("👋 Disconnected from MCP server");
   }
 
   async runScenario(scenario: TestScenario) {
@@ -67,16 +70,16 @@ class MCPTestClient {
     for (let i = 0; i < scenario.steps.length; i++) {
       const step = scenario.steps[i];
       console.log(`Step ${i + 1}: ${step.tool}`);
-      
+
       try {
         // Replace saved result placeholders
         const params = this.replaceSavedResults(step.params);
-        
+
         const result = await this.client!.callTool(step.tool, params);
-        
+
         if (step.expectSuccess !== false) {
           console.log(`✅ Success: ${this.extractResultUrl(result)}`);
-          
+
           if (step.saveResultAs) {
             this.savedResults.set(step.saveResultAs, this.extractResultUrl(result));
             console.log(`💾 Saved as: ${step.saveResultAs}`);
@@ -108,90 +111,90 @@ class MCPTestClient {
     if (result?.content?.[0]?.text) {
       return result.content[0].text;
     }
-    return 'No URL found';
+    return "No URL found";
   }
 }
 
 // Test scenarios
 const scenarios: TestScenario[] = [
   {
-    name: 'Basic Image Generation',
-    description: 'Test simple text-to-image generation',
+    name: "Basic Image Generation",
+    description: "Test simple text-to-image generation",
     steps: [
       {
-        tool: 'textToImage',
+        tool: "textToImage",
         params: {
-          prompt: 'A futuristic city at night',
-          model: 'fal-ai/flux/dev',
+          prompt: "A futuristic city at night",
+          model: "fal-ai/flux/dev",
           parameters: {
-            image_size: 'landscape_16_9',
+            image_size: "landscape_16_9",
           },
         },
-        saveResultAs: 'cityImage',
+        saveResultAs: "cityImage",
       },
     ],
   },
-  
+
   {
-    name: 'Image Processing Pipeline',
-    description: 'Generate → Remove Background → Upscale',
+    name: "Image Processing Pipeline",
+    description: "Generate → Remove Background → Upscale",
     steps: [
       {
-        tool: 'textToImage',
+        tool: "textToImage",
         params: {
-          prompt: 'A robot on white background',
-          model: 'fal-ai/flux/schnell',
+          prompt: "A robot on white background",
+          model: "fal-ai/flux/schnell",
         },
-        saveResultAs: 'robotImage',
+        saveResultAs: "robotImage",
       },
       {
-        tool: 'backgroundRemoval',
+        tool: "backgroundRemoval",
         params: {
-          imageUrl: '{{robotImage}}',
-          model: 'fal-ai/birefnet',
+          imageUrl: "{{robotImage}}",
+          model: "fal-ai/birefnet",
         },
-        saveResultAs: 'robotNoBg',
+        saveResultAs: "robotNoBg",
       },
       {
-        tool: 'upscaleImage',
+        tool: "upscaleImage",
         params: {
-          imageUrl: '{{robotNoBg}}',
-          model: 'fal-ai/aura-sr',
+          imageUrl: "{{robotNoBg}}",
+          model: "fal-ai/aura-sr",
           parameters: {
             scale: 4,
           },
         },
-        saveResultAs: 'robotFinal',
+        saveResultAs: "robotFinal",
       },
     ],
-    expectedOutcome: 'High-res robot image with transparent background',
+    expectedOutcome: "High-res robot image with transparent background",
   },
-  
+
   {
-    name: 'Model Discovery Test',
-    description: 'Test agent ability to discover model parameters',
+    name: "Model Discovery Test",
+    description: "Test agent ability to discover model parameters",
     steps: [
       {
-        tool: 'listModelsDynamic',
+        tool: "listModelsDynamic",
         params: {
-          query: 'video generation',
+          query: "video generation",
         },
       },
       {
-        tool: 'discoverModelsDynamic',
+        tool: "discoverModelsDynamic",
         params: {
-          operation: 'validate',
-          modelId: 'fal-ai/ltxv/image-to-video',
+          operation: "validate",
+          modelId: "fal-ai/ltxv/image-to-video",
         },
       },
       {
-        tool: 'imageToVideo',
+        tool: "imageToVideo",
         params: {
-          imageUrl: 'https://example.com/test.jpg',
-          model: 'fal-ai/ltxv/image-to-video',
+          imageUrl: "https://example.com/test.jpg",
+          model: "fal-ai/ltxv/image-to-video",
           parameters: {
             // Agent would discover these through trial/error
-            prompt: 'Camera slowly zooming in',
+            prompt: "Camera slowly zooming in",
             num_frames: 97,
             frame_rate: 24,
           },
@@ -199,60 +202,60 @@ const scenarios: TestScenario[] = [
       },
     ],
   },
-  
+
   {
-    name: 'Error Handling',
-    description: 'Test invalid parameters and model IDs',
+    name: "Error Handling",
+    description: "Test invalid parameters and model IDs",
     steps: [
       {
-        tool: 'textToImage',
+        tool: "textToImage",
         params: {
-          prompt: 'Test',
-          model: 'not-a-valid-model',
+          prompt: "Test",
+          model: "not-a-valid-model",
         },
         expectSuccess: false,
-        expectError: 'Invalid model ID format',
+        expectError: "Invalid model ID format",
       },
       {
-        tool: 'imageToVideo',
+        tool: "imageToVideo",
         params: {
           // Missing required imageUrl
-          model: 'fal-ai/wan-effects',
+          model: "fal-ai/wan-effects",
         },
         expectSuccess: false,
-        expectError: 'imageUrl',
+        expectError: "imageUrl",
       },
     ],
   },
-  
+
   {
-    name: 'Complex Workflow Chain',
-    description: 'Test the workflow chain tool',
+    name: "Complex Workflow Chain",
+    description: "Test the workflow chain tool",
     steps: [
       {
-        tool: 'workflowChain',
+        tool: "workflowChain",
         params: {
           steps: [
             {
-              type: 'generate',
-              model: 'fal-ai/flux/dev',
+              type: "generate",
+              model: "fal-ai/flux/dev",
               parameters: {
-                prompt: 'A dancing cat, pixar style',
+                prompt: "A dancing cat, pixar style",
               },
             },
             {
-              type: 'upscale',
-              model: 'fal-ai/clarity-upscaler',
+              type: "upscale",
+              model: "fal-ai/clarity-upscaler",
               parameters: {
                 scale: 2,
                 overlapping_factor: 0.6,
               },
             },
             {
-              type: 'animate',
-              model: 'fal-ai/wan-effects',
+              type: "animate",
+              model: "fal-ai/wan-effects",
               parameters: {
-                motion_prompt: 'cat dancing happily',
+                motion_prompt: "cat dancing happily",
                 duration: 3,
                 fps: 24,
               },
@@ -261,25 +264,25 @@ const scenarios: TestScenario[] = [
         },
       },
     ],
-    expectedOutcome: 'Animated video of upscaled dancing cat',
+    expectedOutcome: "Animated video of upscaled dancing cat",
   },
 ];
 
 // Run tests
 async function runTests() {
   const client = new MCPTestClient();
-  
+
   try {
     await client.connect();
-    
+
     for (const scenario of scenarios) {
       await client.runScenario(scenario);
-      console.log('\n' + '='.repeat(60) + '\n');
+      console.log("\n" + "=".repeat(60) + "\n");
     }
-    
-    console.log('🎉 All test scenarios completed!');
+
+    console.log("🎉 All test scenarios completed!");
   } catch (error) {
-    console.error('Test failed:', error);
+    console.error("Test failed:", error);
   } finally {
     await client.disconnect();
   }
@@ -290,4 +293,4 @@ if (require.main === module) {
   runTests().catch(console.error);
 }
 
-export { MCPTestClient, TestScenario, TestStep };
+export { MCPTestClient, type TestScenario, type TestStep };

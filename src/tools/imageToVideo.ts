@@ -1,21 +1,26 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
   extractVideoUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
 } from "../lib/utils/tool-base";
 
 export const schema = {
   imageUrl: z.string().describe("URL of the static image to animate"),
-  model: z.string()
+  model: z
+    .string()
     .default("fal-ai/wan-effects")
     .describe("Any fal-ai model ID for image-to-video generation"),
-  parameters: z.record(z.any()).optional()
-    .describe("Additional model-specific parameters (e.g., prompt, motion_prompt, duration, fps, aspect_ratio, etc.)"),
+  parameters: z
+    .record(z.any())
+    .optional()
+    .describe(
+      "Additional model-specific parameters (e.g., prompt, motion_prompt, duration, fps, aspect_ratio, etc.)"
+    ),
 };
 
 export const metadata: ToolMetadata = {
@@ -44,14 +49,14 @@ Remember: Error messages often reveal the correct parameter names and formats.`,
 
 export default async function imageToVideo(params: InferSchema<typeof schema>) {
   const { imageUrl, model, parameters = {} } = params;
-  const toolName = 'imageToVideo';
-  
+  const toolName = "imageToVideo";
+
   try {
     // Validate input
-    if (!imageUrl || imageUrl === '') {
+    if (!imageUrl || imageUrl === "") {
       throw new Error("Either imageUrl or imagePath must be provided");
     }
-    
+
     // Initialize and validate
     await validateModel(model, toolName);
     initializeFalClient(toolName);
@@ -69,12 +74,12 @@ export default async function imageToVideo(params: InferSchema<typeof schema>) {
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
-    
+
     // Extract video URL
     const videoUrl = extractVideoUrl(response, toolName);
-    
+
     return formatMediaResult(videoUrl);
   } catch (error: any) {
-    return formatError(error, 'Error creating video');
+    return formatError(error, "Error creating video");
   }
 }

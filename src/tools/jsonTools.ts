@@ -1,11 +1,7 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import {
-  initializeFalClient,
-  submitToFal,
-  formatError,
-} from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
+import { formatError, initializeFalClient, submitToFal } from "../lib/utils/tool-base";
 
 // Schema for loudness normalization
 export const loudnormSchema = {
@@ -111,71 +107,77 @@ USE CASES:
 // Implementation for loudnorm
 export async function ffmpegLoudnorm(params: InferSchema<typeof loudnormSchema>) {
   const { audioUrl } = params;
-  const toolName = 'ffmpegLoudnorm';
-  
+  const toolName = "ffmpegLoudnorm";
+
   try {
     initializeFalClient(toolName);
     debug(toolName, `Analyzing loudness for audio`);
 
-    const result = await submitToFal("fal-ai/ffmpeg-api/loudnorm", {
-      audio_url: audioUrl
-    }, toolName);
+    const result = await submitToFal(
+      "fal-ai/ffmpeg-api/loudnorm",
+      {
+        audio_url: audioUrl,
+      },
+      toolName
+    );
 
     return {
-      content: [
-        { type: "text", text: JSON.stringify(result, null, 2) },
-      ],
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error analyzing loudness');
+    return formatError(error, "Error analyzing loudness");
   }
 }
 
 // Implementation for waveform
 export async function ffmpegWaveform(params: InferSchema<typeof waveformSchema>) {
   const { audioUrl, width, height, color } = params;
-  const toolName = 'ffmpegWaveform';
-  
+  const toolName = "ffmpegWaveform";
+
   try {
     initializeFalClient(toolName);
     debug(toolName, `Generating waveform`, { width, height, color });
 
-    const result = await submitToFal("fal-ai/ffmpeg-api/waveform", { 
-      audio_url: audioUrl,
-      width,
-      height,
-      color
-    }, toolName);
+    const result = await submitToFal(
+      "fal-ai/ffmpeg-api/waveform",
+      {
+        audio_url: audioUrl,
+        width,
+        height,
+        color,
+      },
+      toolName
+    );
 
     return {
-      content: [
-        { type: "text", text: JSON.stringify(result, null, 2) },
-      ],
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error generating waveform');
+    return formatError(error, "Error generating waveform");
   }
 }
 
 // Implementation for metadata
 export async function ffmpegMetadata(params: InferSchema<typeof metadataSchema>) {
   const { mediaUrl } = params;
-  const toolName = 'ffmpegMetadata';
-  
+  const toolName = "ffmpegMetadata";
+
   try {
     initializeFalClient(toolName);
     debug(toolName, `Extracting metadata from media`);
 
-    const result = await submitToFal("fal-ai/ffmpeg-api/metadata", {
-      media_url: mediaUrl
-    }, toolName);
+    const result = await submitToFal(
+      "fal-ai/ffmpeg-api/metadata",
+      {
+        media_url: mediaUrl,
+      },
+      toolName
+    );
 
     return {
-      content: [
-        { type: "text", text: JSON.stringify(result, null, 2) },
-      ],
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error extracting metadata');
+    return formatError(error, "Error extracting metadata");
   }
 }

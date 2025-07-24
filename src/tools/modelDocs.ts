@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import * as fs from "fs-extra";
 import * as path from "path";
+import type { InferSchema, ToolMetadata } from "xmcp";
+import { z } from "zod";
 import { formatError } from "../lib/utils/tool-base";
 
 export const schema = {
@@ -28,27 +28,25 @@ This tool provides model-specific documentation if available, helping agents und
 
 export default async function modelDocs(params: InferSchema<typeof schema>) {
   const { modelId } = params;
-  
+
   try {
     // Convert model ID to filename (replace / with -)
-    const filename = modelId.replace('fal-ai/', '').replace(/\//g, '-') + '.md';
-    const docPath = path.join(__dirname, '../../prompts/models', filename);
-    
+    const filename = modelId.replace("fal-ai/", "").replace(/\//g, "-") + ".md";
+    const docPath = path.join(__dirname, "../../prompts/models", filename);
+
     // Check if documentation exists
     if (await fs.pathExists(docPath)) {
-      const content = await fs.readFile(docPath, 'utf-8');
+      const content = await fs.readFile(docPath, "utf-8");
       return {
-        content: [
-          { type: "text", text: content },
-        ],
+        content: [{ type: "text", text: content }],
       };
     }
-    
+
     // Fallback to generic guidance
     return {
       content: [
-        { 
-          type: "text", 
+        {
+          type: "text",
           text: `No specific documentation found for ${modelId}.
 
 Generic guidance for discovering parameters:
@@ -64,11 +62,11 @@ Common parameter patterns:
 • Audio generation: prompt, duration, format
 • Speech: text, voice, language, speed
 
-Remember: The API will guide you with specific error messages if parameters are incorrect.`
+Remember: The API will guide you with specific error messages if parameters are incorrect.`,
         },
       ],
     };
   } catch (error: any) {
-    return formatError(error, 'Error retrieving model documentation');
+    return formatError(error, "Error retrieving model documentation");
   }
 }

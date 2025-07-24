@@ -1,21 +1,26 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
 import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatMediaResult,
-  formatError,
   extractAudioUrl,
+  formatError,
+  formatMediaResult,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
 } from "../lib/utils/tool-base";
 
 export const schema = {
   audioUrl: z.string().describe("URL of the input audio to transform"),
-  model: z.string()
+  model: z
+    .string()
     .default("fal-ai/playai/inpaint/diffusion")
     .describe("Any fal-ai model ID for audio transformation"),
-  parameters: z.record(z.any()).optional()
-    .describe("Additional model-specific parameters (e.g., prompt, strength, start_time, end_time, isolate, mode, duration_extension, target_voice)"),
+  parameters: z
+    .record(z.any())
+    .optional()
+    .describe(
+      "Additional model-specific parameters (e.g., prompt, strength, start_time, end_time, isolate, mode, duration_extension, target_voice)"
+    ),
 };
 
 export const metadata: ToolMetadata = {
@@ -46,8 +51,8 @@ Remember: Error messages often reveal the correct parameter names and formats.`,
 
 export default async function audioToAudio(params: InferSchema<typeof schema>) {
   const { audioUrl, model, parameters = {} } = params;
-  const toolName = 'audioToAudio';
-  
+  const toolName = "audioToAudio";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -65,12 +70,12 @@ export default async function audioToAudio(params: InferSchema<typeof schema>) {
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
-    
+
     // Extract audio URL
     const outputUrl = extractAudioUrl(response, toolName);
-    
+
     return formatMediaResult(outputUrl);
   } catch (error: any) {
-    return formatError(error, 'Error transforming audio');
+    return formatError(error, "Error transforming audio");
   }
 }

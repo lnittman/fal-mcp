@@ -1,20 +1,24 @@
+import type { InferSchema, ToolMetadata } from "xmcp";
 import { z } from "zod";
-import { type InferSchema, type ToolMetadata } from "xmcp";
-import {
-  initializeFalClient,
-  validateModel,
-  submitToFal,
-  formatError,
-} from "../lib/utils/tool-base";
 import { debug } from "../lib/utils/debug";
+import {
+  formatError,
+  initializeFalClient,
+  submitToFal,
+  validateModel,
+} from "../lib/utils/tool-base";
 
 export const schema = {
   audioUrl: z.string().describe("URL of the audio file to transcribe"),
-  model: z.string()
-    .default("fal-ai/whisper")
-    .describe("Speech recognition model"),
-  language: z.string().optional().describe("Language code (e.g., 'en', 'es', 'fr'). Leave empty for auto-detection"),
-  translate: z.boolean().default(false).describe("Translate to English if source is another language"),
+  model: z.string().default("fal-ai/whisper").describe("Speech recognition model"),
+  language: z
+    .string()
+    .optional()
+    .describe("Language code (e.g., 'en', 'es', 'fr'). Leave empty for auto-detection"),
+  translate: z
+    .boolean()
+    .default(false)
+    .describe("Translate to English if source is another language"),
   includeTimestamps: z.boolean().default(false).describe("Include word-level timestamps"),
   task: z.enum(["transcribe", "translate"]).default("transcribe").describe("Task to perform"),
 };
@@ -73,8 +77,8 @@ TIPS FOR BEST RESULTS:
 
 export default async function speechToText(params: InferSchema<typeof schema>) {
   const { audioUrl, model, language, translate, includeTimestamps, task } = params;
-  const toolName = 'speechToText';
-  
+  const toolName = "speechToText";
+
   try {
     // Initialize and validate
     await validateModel(model, toolName);
@@ -91,32 +95,32 @@ export default async function speechToText(params: InferSchema<typeof schema>) {
       include_timestamps: includeTimestamps,
       timestamps: includeTimestamps,
     };
-    
+
     if (language) {
       input.language = language;
       input.lang = language; // Some models might use 'lang'
     }
-    
+
     debug(toolName, `Transcribing audio`, { model, task, language, includeTimestamps });
 
     // Submit to fal.ai
     const response = await submitToFal(model, input, toolName);
 
     // Extract transcription
-    let text = '';
+    let text = "";
     if (response.text) {
       text = response.text;
     } else if (response.transcription) {
       text = response.transcription;
     } else if (response.chunks && Array.isArray(response.chunks)) {
-      text = response.chunks.map((c: any) => c.text || c.transcript).join(' ');
+      text = response.chunks.map((c: any) => c.text || c.transcript).join(" ");
     } else {
       throw new Error("No transcription found in response");
     }
 
     // Build simple response
     let result = text;
-    
+
     // Add metadata if available
     const metadata: string[] = [];
     if (response.language) {
@@ -129,17 +133,15 @@ export default async function speechToText(params: InferSchema<typeof schema>) {
       const segmentCount = response.segments?.length || response.timestamps?.length || 0;
       metadata.push(`${segmentCount} segments with timestamps`);
     }
-    
+
     if (metadata.length > 0) {
-      result += `\n\n[${metadata.join(', ')}]`;
+      result += `\n\n[${metadata.join(", ")}]`;
     }
 
     return {
-      content: [
-        { type: "text", text: result },
-      ],
+      content: [{ type: "text", text: result }],
     };
   } catch (error: any) {
-    return formatError(error, 'Error transcribing audio');
+    return formatError(error, "Error transcribing audio");
   }
 }

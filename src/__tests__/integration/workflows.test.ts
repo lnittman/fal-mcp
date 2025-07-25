@@ -178,7 +178,7 @@ describe("Real-World Workflows", () => {
             },
           },
         ],
-        outputPath: "~/Desktop/final-logo.png",
+        outputPath: "/tmp/final-logo.png",
         saveIntermediates: true,
       });
 

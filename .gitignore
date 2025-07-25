@@ -8,3 +8,6 @@ xmcp-env.d.ts
 # Environment variables
 .env.local
 .envdist/
+
+# Test coverage
+coverage/

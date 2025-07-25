@@ -93,6 +93,28 @@ export default async function uploadFile(params: InferSchema<typeof schema>) {
       ? path.join(os.homedir(), filePath.slice(1))
       : filePath;
 
+    // Mock mode handling
+    if (process.env.FAL_MCP_MOCK === "true") {
+      const fileName = path.basename(resolvedPath);
+      const mockUrl = `https://fal.media/mock/files/${fileName}`;
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `✅ File uploaded successfully!
+
+**File**: ${fileName}
+**Size**: 1.5 MB
+**Type**: ${contentType || (await getMimeType(resolvedPath))}
+**URL**: ${mockUrl}
+
+You can now use this URL with any fal.ai tool that accepts file inputs.`,
+          },
+        ],
+      };
+    }
+
     debug(toolName, `Uploading file from: ${resolvedPath}`);
 
     // Check if file exists

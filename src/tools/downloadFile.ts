@@ -63,6 +63,26 @@ export default async function downloadFile(params: InferSchema<typeof schema>) {
     debug(toolName, `Downloading from: ${url}`);
     debug(toolName, `Saving to: ${resolvedPath}`);
 
+    // Mock mode handling
+    if (process.env.FAL_MCP_MOCK === "true") {
+      const fileName = path.basename(resolvedPath);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `✅ Downloaded successfully!
+
+**File**: ${fileName}
+**Size**: 2.3 MB
+**Saved to**: ${resolvedPath}
+
+The file has been downloaded from ${url} and saved locally.`,
+          },
+        ],
+      };
+    }
+
     // Check if file already exists
     if (!overwrite) {
       try {

@@ -1,4 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "xmcp build --vercel"
+  "functions": {
+    "api/mcp.ts": {
+      "maxDuration": 60
+    }
+  }
 }

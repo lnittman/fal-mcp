@@ -1,7 +1,7 @@
 {
   "name": "@fal-ai/mcp",
   "version": "0.1.0",
-  "description": "Model Context Protocol server for fal.ai - Natural language image, video, and audio generation for Claude and other MCP clients",
+  "description": "Natural language meets lightning-fast generative AI. Transform ideas into images, videos, and audio through simple conversation. Powered by fal.ai.",
   "keywords": [
     "mcp",
     "fal",
@@ -9,11 +9,18 @@
     "image-generation",
     "video-generation",
     "text-to-speech",
+    "speech-to-text",
     "flux",
-    "xmcp",
+    "stable-diffusion",
+    "generative-ai",
+    "natural-language",
     "claude",
-    "llm",
-    "model-context-protocol"
+    "claude-desktop",
+    "cursor",
+    "model-context-protocol",
+    "llm-tools",
+    "ai-tools",
+    "developer-tools"
   ],
   "author": "fal.ai",
   "license": "MIT",
@@ -51,7 +58,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:mcp": "npm run build && FAL_MCP_MOCK=true node dist/test-utils/mcp-test-client.js",
-    "test:integration": "./test-mcp.sh"
+    "test:integration": "./test-mcp.sh",
+    "webapp:dev": "cd webapp && pnpm dev",
+    "webapp:build": "cd webapp && pnpm build",
+    "webapp:start": "cd webapp && pnpm start"
   },
   "dependencies": {
     "@fal-ai/serverless-client": "^0.15.0",

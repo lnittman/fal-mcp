@@ -1,26 +1,31 @@
-# fal-mcp
+# fal-mcp ⚡
 
-A Model Context Protocol (MCP) server for fal.ai that enables natural language image generation and processing through Claude, Cursor, and other MCP-compatible clients.
+**Natural language meets lightning-fast generative AI.** Transform your ideas into images, videos, and audio through simple conversation.
 
-## Features
+A Model Context Protocol (MCP) server powered by [fal.ai](https://fal.ai) that enables natural language creation through Claude, Cursor, and other MCP-compatible clients.
 
-### Image Tools
-- 🎨 **Text to Image**: Generate images from text prompts using FLUX models
-- 🖼️ **Image to Image**: Transform images with natural language (e.g., "convert to pixel art")
-- 📁 **Batch Processing**: Apply transformations to entire folders
-- 💾 **Save & Resize**: Save images locally with optional resizing and format conversion
+## ✨ What You Can Create
 
-### Video Tools
-- 🎬 **Text to Video**: Create videos from text descriptions
-- 🎥 **Image to Video**: Animate static images with motion
+### 🎨 Images
+- **Generate from text**: "A cyberpunk cat in a neon city"
+- **Transform existing images**: "Make it pixel art style"
+- **Process entire folders**: "Convert all photos to anime style"
+- **Smart saving**: Resize, convert formats, organize locally
 
-### Audio Tools
-- 🎙️ **Text to Speech**: Convert text to natural speech with multiple voices
-- 📝 **Speech to Text**: Transcribe audio with language detection
+### 🎬 Videos
+- **Text to video**: "Waves crashing on a beach at sunset"
+- **Animate images**: Bring your static images to life
 
-### Infrastructure
-- 🌐 **Dual Transport**: Works via HTTP (deployed) or STDIO (local file access)
-- 🔗 **Agentic Ready**: Tools designed for natural language chaining
+### 🔊 Audio
+- **Natural speech**: Multiple voices and languages
+- **Transcription**: 100+ languages with auto-detection
+- **Music generation**: Create soundscapes and melodies
+
+### 🚀 Why fal-mcp?
+- **Discovery-based**: No need to memorize parameters - just describe what you want
+- **Lightning fast**: Powered by fal.ai's optimized infrastructure
+- **Works everywhere**: Claude Desktop, Cursor, any MCP client
+- **Learn by doing**: The AI discovers the best approach for you
 
 ## 📚 Documentation
 
@@ -38,7 +43,7 @@ A Model Context Protocol (MCP) server for fal.ai that enables natural language i
 - **[Testing Guide](./docs/TESTING.md)** - Testing infrastructure and strategies
 - **[Troubleshooting](./docs/guides/troubleshooting.md)** - Common issues and solutions
 
-## Installation
+## 🚀 Get Started in 30 Seconds
 
 ### Quick Install with Claude Desktop
 
@@ -46,7 +51,7 @@ A Model Context Protocol (MCP) server for fal.ai that enables natural language i
 claude mcp add fal -- npx -y @fal-ai/mcp
 ```
 
-Then add your API key to the Claude configuration.
+Then add your API key to the Claude configuration. That's it! 🎉
 
 ### Manual Setup
 
@@ -67,20 +72,25 @@ pnpm build
 pnpm dev
 ```
 
-## Usage
+## 💬 Example Conversations
 
-### Development Mode
+```
+You: Generate an image of a serene Japanese garden at dawn
+Claude: ✨ Beautiful! Your image is ready: [generates stunning image]
 
-```bash
-pnpm dev
+You: Now make it look like Studio Ghibli animated it
+Claude: 🎨 Transformed with that magical Ghibli style: [transforms image]
+
+You: Can you animate this with gentle wind movement?
+Claude: 🎬 Your garden now sways peacefully: [creates video]
 ```
 
-### Production Build
+## 🛠️ Development
 
 ```bash
-pnpm build
-pnpm start        # HTTP server
-pnpm start-stdio  # STDIO mode
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm test         # Run tests (199 passing ✅)
 ```
 
 ### Configure in Claude Desktop

@@ -1,0 +1,14 @@
+<svg width="80" height="32" viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#52EB07" />
+      <stop offset="100%" style="stop-color:#00FFF7" />
+    </linearGradient>
+  </defs>
+  <path d="M8 24V12.8H11.2V10.4H8V8C8 7.2 8.32 6.88 9.12 6.88H11.2V4.48C10.72 4.32 9.92 4.16 8.96 4.16C6.24 4.16 4.8 5.6 4.8 8V10.4H2.4V12.8H4.8V24H8Z" fill="currentColor"/>
+  <path d="M21.84 24V17.6C21.84 15.68 20.88 14.56 19.12 14.56C17.36 14.56 16.4 15.68 16.4 17.6V24H13.2V17.28C13.2 13.76 15.28 11.84 18.32 11.84C19.76 11.84 21.04 12.48 21.84 13.6V12H25.04V24H21.84Z" fill="currentColor"/>
+  <path d="M31.44 24V4.48H28.24V24H31.44Z" fill="currentColor"/>
+  <circle cx="37.6" cy="18" r="3.2" fill="url(#fal-gradient)"/>
+  <path d="M50.64 24V17.6C50.64 15.68 49.68 14.56 47.92 14.56C46.16 14.56 45.2 15.68 45.2 17.6V24H42V17.28C42 13.76 44.08 11.84 47.12 11.84C48.56 11.84 49.84 12.48 50.64 13.6V12H53.84V24H50.64Z" fill="currentColor"/>
+  <path d="M60.24 8C60.24 9.12 59.36 10 58.24 10C57.12 10 56.24 9.12 56.24 8C56.24 6.88 57.12 6 58.24 6C59.36 6 60.24 6.88 60.24 8ZM59.84 24V12H56.64V24H59.84Z" fill="currentColor"/>
+</svg>

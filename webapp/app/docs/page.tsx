@@ -171,7 +171,7 @@ export default function DocsPage() {
 
             <div className="mt-8">
               <Link href="/docs/tools">
-                <Button variant="outline">
+                <Button variant="default">
                   View All Tools →
                 </Button>
               </Link>

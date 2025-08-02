@@ -285,7 +285,7 @@ export default function ToolsPage() {
               />
               <div className="flex gap-2 flex-wrap">
                 <Button
-                  variant={selectedCategory === null ? "default" : "outline"}
+                  variant={selectedCategory === null ? "primary" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(null)}
                 >
@@ -294,7 +294,7 @@ export default function ToolsPage() {
                 {categories.map(category => (
                   <Button
                     key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
+                    variant={selectedCategory === category ? "primary" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(category)}
                   >

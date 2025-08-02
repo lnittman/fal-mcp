@@ -2,6 +2,8 @@
 
 **Natural language meets lightning-fast generative AI.** Transform your ideas into images, videos, and audio through simple conversation.
 
+🌐 **[Live Documentation](https://webapp-luke-labs.vercel.app)** | 📦 **[NPM Package](https://www.npmjs.com/package/@fal-ai/mcp)**
+
 A Model Context Protocol (MCP) server powered by [fal.ai](https://fal.ai) that enables natural language creation through Claude, Cursor, and other MCP-compatible clients.
 
 ## ✨ What You Can Create

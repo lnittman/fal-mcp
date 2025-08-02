@@ -505,7 +505,7 @@ function ImageTransformationsSection({ scrollProgress }: { scrollProgress: any }
   );
 }
 
-function VideoGenerationSection({ scrollProgress }: { scrollProgress: any }) {
+function VideoGenerationSection({ scrollProgress, scrollY }: { scrollProgress: any; scrollY: any }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
@@ -1001,6 +1001,14 @@ function MagneticButton({ children }: { children: React.ReactNode }) {
 }
 
 function FloatingParticles() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  if (!mounted) return null;
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
@@ -1008,8 +1016,8 @@ function FloatingParticles() {
           key={i}
           className="absolute w-1 h-1 bg-primary/30 rounded-full"
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
+            y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1080),
           }}
           animate={{
             y: [null, -100],

@@ -75,9 +75,10 @@ const config: Config = {
         "3xl": "1rem",
       },
       fontFamily: {
-        sans: ["-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "SF Mono", "Consolas", "Liberation Mono", "Menlo", "monospace"],
-        heading: ["-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        sans: ["var(--font-focal)", "system-ui", "sans-serif"],
+        serif: ["var(--font-hal)", "Georgia", "serif"],
+        mono: ["var(--font-commit-mono)", "var(--font-hal-mono)", "monospace"],
+        heading: ["var(--font-focal)", "system-ui", "sans-serif"],
       },
       animation: {
         "logo-spin": "logoSpin 4s ease-in-out infinite",

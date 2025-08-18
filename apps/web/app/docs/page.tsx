@@ -62,19 +62,19 @@ export default function DocsPage() {
 
         {/* Main content - account for header height and margin */}
         <div className="pt-40 pb-24">
-          <div className="max-w-4xl mx-auto px-6">
-            <h1 className="text-4xl font-heading font-light text-gray-900 mb-16">Documentation</h1>
+          <div className="max-w-6xl mx-auto px-8">
+            <h1 className="text-4xl font-heading font-light text-gray-900 mb-16">Quick Start</h1>
 
             {/* Installation */}
             <section className="mb-20">
-              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">Installation</h2>
+              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">Deploy in 3 minutes</h2>
               
               <div className="space-y-12">
                 {/* Step 1 */}
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-3">1. Get your API key</h3>
                   <p className="text-gray-600 mb-3">
-                    Sign up at fal.ai and create an API key from your dashboard.
+                    Sign up free. Get $10 in credits. No GPU setup needed.
                   </p>
                   <a
                     href="https://fal.ai/dashboard/keys"
@@ -88,9 +88,9 @@ export default function DocsPage() {
 
                 {/* Step 2 */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">2. Choose your client</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">2. Configure your client</h3>
                   <p className="text-gray-600 mb-6">
-                    Select your preferred AI assistant or development environment.
+                    One-click setup. Works with any MCP client.
                   </p>
                   
                   <div className="space-y-6">
@@ -144,13 +144,13 @@ export default function DocsPage() {
 
                 {/* Step 3 */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">3. Restart and start creating</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">3. Start building</h3>
                   <p className="text-gray-600 mb-3">
-                    Restart your client and try asking:
+                    Natural language. Lightning-fast inference. Zero MLOps:
                   </p>
                   <div className="bg-gray-100 p-4 rounded-sm">
                     <p className="text-sm font-mono text-gray-800">
-                      "Generate an image of a cyberpunk city at night"
+                      "Generate a product photo using FLUX Pro"
                     </p>
                   </div>
                 </div>
@@ -159,14 +159,14 @@ export default function DocsPage() {
 
             {/* Available Tools */}
             <section>
-              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">Available Tools</h2>
+              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">600+ Models</h2>
               <p className="text-gray-600 mb-8">
-                fal-mcp provides 27 tools for creative AI generation through natural conversation.
+                Production-ready. 10x faster inference. One API call away.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {toolCategories.map((category) => (
-                  <div key={category.title} className="border border-gray-200 rounded-sm p-6">
+                  <div key={category.title} className="border border-gray-200 rounded-sm p-6 hover:border-gray-300 transition-colors">
                     <h3 className="font-medium text-gray-900 mb-3">{category.title}</h3>
                     <ul className="space-y-2">
                       {category.tools.map((tool) => (
@@ -181,7 +181,7 @@ export default function DocsPage() {
 
               <Link href="/docs/tools">
                 <Button variant="default" size="sm" className="rounded-sm">
-                  View all tools <ChevronRight className="ml-1 h-3 w-3" />
+                  Explore all models <ChevronRight className="ml-1 h-3 w-3" />
                 </Button>
               </Link>
             </section>

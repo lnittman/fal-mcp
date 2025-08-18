@@ -22,7 +22,7 @@ export function FloatingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <div
         className={cn(
-          "mx-4 md:mx-auto max-w-7xl mt-4 px-6 py-4 rounded-sm transition-all duration-300",
+          "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-4 rounded-sm transition-all duration-300",
           scrolled
             ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
             : "bg-transparent border border-transparent"

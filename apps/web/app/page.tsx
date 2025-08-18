@@ -104,10 +104,10 @@ export default function Home() {
         </section>
 
         {/* Capabilities Grid */}
-        <section className="py-24 px-6 bg-gray-50">
-          <div className="max-w-5xl mx-auto">
+        <section className="py-24 px-8 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-heading font-light text-center mb-16 text-gray-900">
-              What can you build?
+              Production-ready models, one API call away
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {capabilities.map((capability) => (
@@ -139,7 +139,7 @@ export default function Home() {
         </section>
 
         {/* Quick Setup */}
-        <section className="py-24 px-6">
+        <section className="py-24 px-8">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-heading font-light text-center mb-16 text-gray-900">
               Get started in 3 minutes

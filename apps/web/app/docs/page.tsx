@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Copy, Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LenisProvider } from "@/components/lenis-provider";
+import { FalHeroAnimation } from "@fal-mcp/ascii";
 
 export default function DocsPage() {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
@@ -63,7 +64,18 @@ export default function DocsPage() {
         {/* Main content - account for header height and margin */}
         <div className="pt-40 pb-24">
           <div className="max-w-6xl mx-auto px-8">
-            <h1 className="text-4xl font-heading font-light text-gray-900 mb-16">Quick Start</h1>
+            <div className="relative mb-16">
+              <FalHeroAnimation 
+                width={100} 
+                height={8} 
+                frameCount={60} 
+                fps={20}
+                style="pulse"
+                className="text-gray-300/15"
+                containerClassName=""
+              />
+              <h1 className="relative text-4xl font-heading font-light text-gray-900">Quick Start</h1>
+            </div>
 
             {/* Installation */}
             <section className="mb-20">

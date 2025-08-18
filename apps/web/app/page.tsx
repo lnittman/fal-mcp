@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Copy, Check, ChevronRight, Sparkles, Zap, Wand2 } from "lucide-react";
 import { LenisProvider } from "@/components/lenis-provider";
+import { FalHeroAnimation } from "@fal-mcp/ascii";
 
 export default function Home() {
   const [copiedClient, setCopiedClient] = useState<string | null>(null);
@@ -75,14 +76,25 @@ export default function Home() {
         {/* Hero Section - account for header height and margin */}
         <section className="relative pt-40 pb-24 px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center">
-              <h1 className="text-5xl md:text-7xl font-heading font-light tracking-tight text-gray-900 mb-6">
-                fal-mcp
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-                Connect any MCP client to fal.ai's lightning-fast AI models.
-                Generate images, videos, and audio through natural conversation.
-              </p>
+            <div className="text-center relative">
+              <FalHeroAnimation 
+                width={120} 
+                height={20} 
+                frameCount={60} 
+                fps={24}
+                style="network"
+                className="text-gray-200/10"
+                containerClassName=""
+              />
+              <div className="relative">
+                <h1 className="text-5xl md:text-7xl font-heading font-light tracking-tight text-gray-900 mb-6">
+                  fal-mcp
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+                  Connect any MCP client to fal.ai's lightning-fast AI models.
+                  Generate images, videos, and audio through natural conversation.
+                </p>
+              </div>
               <div className="flex items-center justify-center gap-4">
                 <Button size="lg" asChild className="rounded-sm">
                   <a

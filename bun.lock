@@ -55,6 +55,7 @@
       "name": "@fal-mcp/web",
       "version": "0.1.0",
       "dependencies": {
+        "@fal-mcp/ascii": "workspace:*",
         "@radix-ui/react-alert-dialog": "^1.1.14",
         "@radix-ui/react-avatar": "^1.1.10",
         "@radix-ui/react-context-menu": "^2.2.15",
@@ -100,6 +101,23 @@
         "@fal-mcp/typescript-config": "workspace:*",
         "@types/node": "^20.10.0",
         "typescript": "^5.7.2",
+      },
+    },
+    "packages/ascii": {
+      "name": "@fal-mcp/ascii",
+      "version": "1.0.0",
+      "dependencies": {
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+      },
+      "devDependencies": {
+        "@types/react": "^19.1.1",
+        "@types/react-dom": "^19.1.1",
+        "typescript": "^5.7.3",
+      },
+      "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
       },
     },
     "packages/design": {
@@ -223,6 +241,8 @@
     "@fal-mcp/ai": ["@fal-mcp/ai@workspace:packages/ai"],
 
     "@fal-mcp/ai-app": ["@fal-mcp/ai-app@workspace:apps/ai"],
+
+    "@fal-mcp/ascii": ["@fal-mcp/ascii@workspace:packages/ascii"],
 
     "@fal-mcp/design": ["@fal-mcp/design@workspace:packages/design"],
 

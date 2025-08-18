@@ -1,85 +1,31 @@
 {
-  "name": "@fal-ai/mcp",
+  "name": "fal-xyz",
   "version": "0.1.0",
-  "description": "Natural language meets lightning-fast generative AI. Transform ideas into images, videos, and audio through simple conversation. Powered by fal.ai.",
-  "keywords": [
-    "mcp",
-    "fal",
-    "ai",
-    "image-generation",
-    "video-generation",
-    "text-to-speech",
-    "speech-to-text",
-    "flux",
-    "stable-diffusion",
-    "generative-ai",
-    "natural-language",
-    "claude",
-    "claude-desktop",
-    "cursor",
-    "model-context-protocol",
-    "llm-tools",
-    "ai-tools",
-    "developer-tools"
-  ],
-  "author": "fal.ai",
+  "private": true,
+  "description": "fal.ai ecosystem with mcp server, web app, and ai integrations",
+  "author": "luke nittmann",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fal-ai/fal-mcp.git"
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "clean": "turbo clean && rm -rf node_modules",
+    "typecheck": "turbo typecheck"
   },
-  "bugs": {
-    "url": "https://github.com/fal-ai/fal-mcp/issues"
-  },
-  "homepage": "https://github.com/fal-ai/fal-mcp#readme",
-  "main": "stdio-wrapper.js",
-  "bin": {
-    "@fal-ai/mcp": "stdio-wrapper.js"
-  },
-  "files": [
-    "dist",
-    "stdio-wrapper.js",
-    "README.md",
-    "LICENSE",
-    "docs"
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ],
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "bun@1.1.42",
   "engines": {
     "node": ">=20.0.0"
-  },
-  "scripts": {
-    "build": "xmcp build",
-    "dev": "xmcp dev",
-    "start": "node dist/http.js",
-    "start-stdio": "node stdio-wrapper.js",
-    "lint": "biome check .",
-    "format": "biome format --write .",
-    "check": "biome check --write .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:mcp": "npm run build && FAL_MCP_MOCK=true node dist/test-utils/mcp-test-client.js",
-    "test:integration": "./test-mcp.sh",
-    "webapp:dev": "cd webapp && pnpm dev",
-    "webapp:build": "cd webapp && pnpm build",
-    "webapp:start": "cd webapp && pnpm start"
-  },
-  "dependencies": {
-    "@fal-ai/serverless-client": "^0.15.0",
-    "@radix-ui/react-slot": "^1.2.3",
-    "class-variance-authority": "^0.7.1",
-    "dotenv": "^17.2.0",
-    "fs-extra": "^11.3.0",
-    "open": "^10.2.0",
-    "xmcp": "latest",
-    "zod": "3.24.4"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.1.2",
-    "@modelcontextprotocol/sdk": "^1.0.4",
-    "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.10.0",
-    "@vitest/coverage-v8": "^2.1.8",
-    "swc-loader": "^0.2.6",
-    "vitest": "^2.1.8"
   }
 }

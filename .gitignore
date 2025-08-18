@@ -1,13 +1,59 @@
 # Dependencies
-node_modules/
-.vercel
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+
+# Next.js
+.next/
+out/
+build
 dist
-.xmcp
-xmcp-env.d.ts
 
-# Environment variables
+# Production
+build
+dist
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files
+.env
 .env.local
-.envdist/
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Test coverage
-coverage/
+# Vercel
+.vercel
+
+# Turborepo
+.turbo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Bun
+bun.lockb
+
+# MCP
+*.tgz
+stdio-wrapper.js
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,16 +1,28 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noArrayIndexKey": "off"
+      },
       "complexity": {
-        "noUselessCatch": "off"
+        "noBannedTypes": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useConst": "warn"
+        "useConst": "error",
+        "useTemplate": "error"
       }
     }
   },
@@ -24,12 +36,21 @@
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "double",
-      "trailingCommas": "es5",
-      "semicolons": "always"
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
     }
   },
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.vercel", "!**/.xmcp"]
+    "ignore": [
+      "**/node_modules",
+      "**/dist",
+      "**/.next",
+      "**/coverage",
+      "**/.turbo",
+      "**/build"
+    ]
   }
 }

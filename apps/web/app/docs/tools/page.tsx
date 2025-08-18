@@ -1,0 +1,331 @@
+"use client";
+
+import { FloatingHeader } from "@/components/floating-header";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { LenisProvider } from "@/components/lenis-provider";
+
+const tools = [
+  // Image Tools
+  {
+    id: "textToImage",
+    name: "Text to Image",
+    category: "Image",
+    description: "Generate images from text descriptions using any fal.ai model",
+    modelSupport: "All image generation models",
+  },
+  {
+    id: "imageToImage",
+    name: "Image to Image",
+    category: "Image",
+    description: "Transform images using AI-powered style transfer and editing",
+    modelSupport: "Style transfer & editing models",
+  },
+  {
+    id: "backgroundRemoval",
+    name: "Background Removal",
+    category: "Image",
+    description: "Remove backgrounds from images with precision",
+    modelSupport: "Background removal models",
+  },
+  {
+    id: "objectRemoval",
+    name: "Object Removal",
+    category: "Image",
+    description: "AI-powered inpainting to remove unwanted objects",
+    modelSupport: "Inpainting models",
+  },
+  {
+    id: "upscaleImage",
+    name: "Image Upscaling",
+    category: "Image",
+    description: "Enhance image resolution with AI super-resolution",
+    modelSupport: "Upscaling models",
+  },
+  {
+    id: "batchBackgroundRemoval",
+    name: "Batch Background Removal",
+    category: "Image",
+    description: "Remove backgrounds from multiple images at once",
+    modelSupport: "Background removal models",
+  },
+  {
+    id: "batchProcessImages",
+    name: "Batch Process Images",
+    category: "Image",
+    description: "Apply transformations to entire directories",
+    modelSupport: "All image models",
+  },
+  {
+    id: "imageToJson",
+    name: "Image to JSON",
+    category: "Image",
+    description: "Extract structured data from images using vision models",
+    modelSupport: "Vision models",
+  },
+  {
+    id: "saveImage",
+    name: "Save Image",
+    category: "Utilities",
+    description: "Download and save images from URLs",
+    modelSupport: "N/A",
+  },
+  
+  // Video Tools
+  {
+    id: "textToVideo",
+    name: "Text to Video",
+    category: "Video",
+    description: "Generate videos from text descriptions",
+    modelSupport: "Video generation models",
+  },
+  {
+    id: "imageToVideo",
+    name: "Image to Video",
+    category: "Video",
+    description: "Animate static images into dynamic videos",
+    modelSupport: "Image animation models",
+  },
+  
+  // Audio Tools
+  {
+    id: "textToSpeech",
+    name: "Text to Speech",
+    category: "Audio",
+    description: "Natural voice synthesis in multiple languages",
+    modelSupport: "TTS models",
+  },
+  {
+    id: "speechToText",
+    name: "Speech to Text",
+    category: "Audio",
+    description: "Transcribe audio to text in 100+ languages",
+    modelSupport: "Whisper & transcription models",
+  },
+  {
+    id: "textToAudio",
+    name: "Text to Audio",
+    category: "Audio",
+    description: "Generate music and sound effects from descriptions",
+    modelSupport: "Audio generation models",
+  },
+  {
+    id: "audioToAudio",
+    name: "Audio to Audio",
+    category: "Audio",
+    description: "Transform and edit audio files with AI",
+    modelSupport: "Audio processing models",
+  },
+  
+  // Discovery & Utility Tools
+  {
+    id: "discoverModelsDynamic",
+    name: "Discover Models",
+    category: "Discovery",
+    description: "Explore available fal.ai models dynamically",
+    modelSupport: "All models",
+  },
+  {
+    id: "listModelsDynamic",
+    name: "List Models",
+    category: "Discovery",
+    description: "Get categorized lists of available models",
+    modelSupport: "All models",
+  },
+  {
+    id: "recommendModel",
+    name: "Recommend Model",
+    category: "Discovery",
+    description: "Get AI recommendations for your use case",
+    modelSupport: "All models",
+  },
+  {
+    id: "modelDocs",
+    name: "Model Documentation",
+    category: "Discovery",
+    description: "Get detailed documentation for specific models",
+    modelSupport: "All models",
+  },
+  
+  // Workflow Tools
+  {
+    id: "workflowChain",
+    name: "Workflow Chain",
+    category: "Workflows",
+    description: "Chain multiple operations into complex pipelines",
+    modelSupport: "All models",
+  },
+  {
+    id: "enhancePrompt",
+    name: "Enhance Prompt",
+    category: "Utilities",
+    description: "Optimize prompts for better model results",
+    modelSupport: "LLM models",
+  },
+  {
+    id: "courseModels",
+    name: "Course Models",
+    category: "Learning",
+    description: "Interactive guided tour of fal.ai capabilities",
+    modelSupport: "All models",
+  },
+  {
+    id: "getSystemInstructions",
+    name: "System Instructions",
+    category: "Utilities",
+    description: "Get comprehensive tool documentation",
+    modelSupport: "N/A",
+  },
+  
+  // File Management
+  {
+    id: "uploadFile",
+    name: "Upload File",
+    category: "Files",
+    description: "Upload local files to fal.ai storage",
+    modelSupport: "N/A",
+  },
+  {
+    id: "downloadFile",
+    name: "Download File",
+    category: "Files",
+    description: "Download files from URLs to local storage",
+    modelSupport: "N/A",
+  },
+  
+  // Specialized Tools
+  {
+    id: "textToImageStyled",
+    name: "Text to Image (Styled)",
+    category: "Image",
+    description: "Generate images with style exploration features",
+    modelSupport: "Style-aware models",
+  },
+  {
+    id: "jsonTools",
+    name: "JSON Tools",
+    category: "Utilities",
+    description: "Utilities for working with JSON data",
+    modelSupport: "N/A",
+  },
+];
+
+const categories = [...new Set(tools.map(t => t.category))].sort();
+
+export default function ToolsPage() {
+  const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredTools = tools.filter(tool => {
+    const matchesCategory = filter === "all" || tool.category === filter;
+    const matchesSearch = !searchQuery || 
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <LenisProvider>
+      <div className="min-h-screen bg-white">
+        <FloatingHeader />
+
+        {/* Main content - account for header height and margin */}
+        <div className="pt-40 pb-24">
+          <div className="max-w-6xl mx-auto px-6">
+            <h1 className="text-4xl font-heading font-light text-gray-900 mb-4">Tools Reference</h1>
+            <p className="text-gray-600 mb-12">
+              Complete list of available fal-mcp tools for AI generation
+            </p>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3 mb-8">
+              <Button
+                variant={filter === "all" ? "default" : "secondary"}
+                size="sm"
+                onClick={() => setFilter("all")}
+                className="rounded-sm"
+              >
+                All ({tools.length})
+              </Button>
+              {categories.map((category) => {
+                const count = tools.filter((t) => t.category === category).length;
+                return (
+                  <Button
+                    key={category}
+                    variant={filter === category ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => setFilter(category)}
+                    className="rounded-sm"
+                  >
+                    {category} ({count})
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Search */}
+            <div className="mb-12">
+              <input
+                type="text"
+                placeholder="Search tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 text-sm rounded-sm bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-gray-900 placeholder-gray-500"
+              />
+            </div>
+
+            {/* Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+              {filteredTools.map((tool) => (
+                <div 
+                  key={tool.id} 
+                  className="p-6 border border-gray-200 rounded-sm hover:border-gray-300 transition-colors bg-white"
+                >
+                  <div className="mb-3">
+                    <h3 className="font-mono text-sm font-medium text-gray-900 mb-2">{tool.id}</h3>
+                    <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
+                      {tool.category}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{tool.description}</p>
+                  <p className="text-xs text-gray-500">
+                    Models: {tool.modelSupport}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {filteredTools.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-gray-600">No tools found matching your search.</p>
+              </div>
+            )}
+
+            {/* Footer Links */}
+            <div className="pt-12 border-t border-gray-200">
+              <div className="flex items-center justify-between text-sm">
+                <a
+                  href="https://fal.ai/dashboard/keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Get API Key
+                </a>
+                <a
+                  href="https://github.com/fal-ai/fal-mcp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  GitHub
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </LenisProvider>
+  );
+}

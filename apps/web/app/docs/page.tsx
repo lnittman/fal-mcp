@@ -1,0 +1,193 @@
+"use client";
+
+import { FloatingHeader } from "@/components/floating-header";
+import Link from "next/link";
+import { useState } from "react";
+import { Copy, Check, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LenisProvider } from "@/components/lenis-provider";
+
+export default function DocsPage() {
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, section: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedSection(section);
+    setTimeout(() => setCopiedSection(null), 2000);
+  };
+
+  const claudeConfig = `{
+  "mcpServers": {
+    "fal-mcp": {
+      "command": "npx",
+      "args": ["-y", "@fal-ai/mcp"],
+      "env": {
+        "FAL_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}`;
+
+  const cursorConfig = `{
+  "mcpServers": {
+    "fal-mcp": {
+      "command": "npx",
+      "args": ["-y", "@fal-ai/mcp"],
+      "env": {
+        "FAL_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}`;
+
+  const toolCategories = [
+    {
+      title: "Image Generation",
+      tools: ["textToImage", "imageToImage", "upscaleImage", "backgroundRemoval"]
+    },
+    {
+      title: "Video Creation",
+      tools: ["textToVideo", "imageToVideo", "videoToVideo"]
+    },
+    {
+      title: "Audio Processing",
+      tools: ["textToSpeech", "speechToText", "textToAudio", "audioToAudio"]
+    }
+  ];
+
+  return (
+    <LenisProvider>
+      <div className="min-h-screen bg-white">
+        <FloatingHeader />
+
+        {/* Main content - account for header height and margin */}
+        <div className="pt-40 pb-24">
+          <div className="max-w-4xl mx-auto px-6">
+            <h1 className="text-4xl font-heading font-light text-gray-900 mb-16">Documentation</h1>
+
+            {/* Installation */}
+            <section className="mb-20">
+              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">Installation</h2>
+              
+              <div className="space-y-12">
+                {/* Step 1 */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">1. Get your API key</h3>
+                  <p className="text-gray-600 mb-3">
+                    Sign up at fal.ai and create an API key from your dashboard.
+                  </p>
+                  <a
+                    href="https://fal.ai/dashboard/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                  >
+                    Get API key <ChevronRight className="ml-1 h-3 w-3" />
+                  </a>
+                </div>
+
+                {/* Step 2 */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">2. Choose your client</h3>
+                  <p className="text-gray-600 mb-6">
+                    Select your preferred AI assistant or development environment.
+                  </p>
+                  
+                  <div className="space-y-6">
+                    {/* Claude Desktop */}
+                    <div className="border border-gray-200 rounded-sm p-6">
+                      <h4 className="font-medium text-gray-900 mb-2">Claude Desktop</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-sm font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code>
+                      </p>
+                      <div className="relative">
+                        <pre className="bg-gray-50 p-4 rounded-sm overflow-x-auto text-xs text-gray-800">
+                          <code>{claudeConfig}</code>
+                        </pre>
+                        <button
+                          onClick={() => copyToClipboard(claudeConfig, 'claude')}
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {copiedSection === 'claude' ? (
+                            <Check className="h-3.5 w-3.5" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Cursor */}
+                    <div className="border border-gray-200 rounded-sm p-6">
+                      <h4 className="font-medium text-gray-900 mb-2">Cursor</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-sm font-mono">~/.cursor/mcp.json</code>
+                      </p>
+                      <div className="relative">
+                        <pre className="bg-gray-50 p-4 rounded-sm overflow-x-auto text-xs text-gray-800">
+                          <code>{cursorConfig}</code>
+                        </pre>
+                        <button
+                          onClick={() => copyToClipboard(cursorConfig, 'cursor')}
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {copiedSection === 'cursor' ? (
+                            <Check className="h-3.5 w-3.5" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">3. Restart and start creating</h3>
+                  <p className="text-gray-600 mb-3">
+                    Restart your client and try asking:
+                  </p>
+                  <div className="bg-gray-100 p-4 rounded-sm">
+                    <p className="text-sm font-mono text-gray-800">
+                      "Generate an image of a cyberpunk city at night"
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Available Tools */}
+            <section>
+              <h2 className="text-2xl font-heading font-light text-gray-900 mb-8">Available Tools</h2>
+              <p className="text-gray-600 mb-8">
+                fal-mcp provides 27 tools for creative AI generation through natural conversation.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {toolCategories.map((category) => (
+                  <div key={category.title} className="border border-gray-200 rounded-sm p-6">
+                    <h3 className="font-medium text-gray-900 mb-3">{category.title}</h3>
+                    <ul className="space-y-2">
+                      {category.tools.map((tool) => (
+                        <li key={tool} className="text-sm text-gray-600 font-mono">
+                          {tool}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              <Link href="/docs/tools">
+                <Button variant="default" size="sm" className="rounded-sm">
+                  View all tools <ChevronRight className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            </section>
+          </div>
+        </div>
+      </div>
+    </LenisProvider>
+  );
+}

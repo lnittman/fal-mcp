@@ -92,7 +92,7 @@ export default function DocsPage() {
                     href="https://fal.ai/dashboard/keys"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                    className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900 [transition:color_0ms] hover:[transition:color_150ms]"
                   >
                     Get API key <ChevronRight className="ml-1 h-3 w-3" />
                   </a>
@@ -118,7 +118,7 @@ export default function DocsPage() {
                         </pre>
                         <button
                           onClick={() => copyToClipboard(claudeConfig, 'claude')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms]"
                         >
                           {copiedSection === 'claude' ? (
                             <Check className="h-3.5 w-3.5" />
@@ -141,7 +141,7 @@ export default function DocsPage() {
                         </pre>
                         <button
                           onClick={() => copyToClipboard(cursorConfig, 'cursor')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms]"
                         >
                           {copiedSection === 'cursor' ? (
                             <Check className="h-3.5 w-3.5" />
@@ -178,7 +178,7 @@ export default function DocsPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {toolCategories.map((category) => (
-                  <div key={category.title} className="border border-gray-200 rounded-sm p-6 hover:border-gray-300 transition-colors">
+                  <div key={category.title} className="border border-gray-200 rounded-sm p-6 hover:border-gray-300 [transition:border-color_0ms] hover:[transition:border-color_150ms]">
                     <h3 className="font-medium text-gray-900 mb-3">{category.title}</h3>
                     <ul className="space-y-2">
                       {category.tools.map((tool) => (

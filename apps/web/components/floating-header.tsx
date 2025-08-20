@@ -59,7 +59,7 @@ export function FloatingHeader() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-gray-600 hover:text-gray-900 [transition:color_0ms] hover:[transition:color_150ms]"
                   >
                     {link.label}
                   </a>
@@ -67,7 +67,7 @@ export function FloatingHeader() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-gray-600 hover:text-gray-900 [transition:color_0ms] hover:[transition:color_150ms]"
                   >
                     {link.label}
                   </Link>
@@ -85,14 +85,14 @@ export function FloatingHeader() {
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] flex flex-col">
                 <SheetHeader className="mb-8">
-                  <SheetTitle className="flex items-center">
+                  <SheetTitle className="flex justify-end">
                     <Logo className="h-6 w-auto text-gray-900" />
                   </SheetTitle>
                 </SheetHeader>
                 
-                <nav className="flex flex-col space-y-4">
+                <nav className="flex-1 flex flex-col space-y-4">
                   {navLinks.map((link) => (
                     link.external ? (
                       <a
@@ -100,7 +100,7 @@ export function FloatingHeader() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-lg text-gray-600 hover:text-gray-900 transition-colors py-2"
+                        className="text-lg text-gray-600 hover:text-gray-900 [transition:color_0ms] hover:[transition:color_150ms] py-2"
                         onClick={() => setIsOpen(false)}
                       >
                         {link.label}
@@ -109,7 +109,7 @@ export function FloatingHeader() {
                       <Link
                         key={link.href}
                         href={link.href}
-                        className="text-lg text-gray-600 hover:text-gray-900 transition-colors py-2"
+                        className="text-lg text-gray-600 hover:text-gray-900 [transition:color_0ms] hover:[transition:color_150ms] py-2"
                         onClick={() => setIsOpen(false)}
                       >
                         {link.label}
@@ -118,7 +118,7 @@ export function FloatingHeader() {
                   ))}
                 </nav>
                 
-                <div className="mt-8 pt-8 border-t">
+                <div className="mt-auto pt-8 border-t pb-6">
                   <Button variant="default" size="lg" asChild className="w-full rounded-sm">
                     <a
                       href="https://fal.ai/dashboard/keys"

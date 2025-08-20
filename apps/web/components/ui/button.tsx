@@ -8,8 +8,11 @@ const buttonVariants = cva(
   [
     "inline-flex items-center justify-center whitespace-nowrap rounded",
     "border border-stroke-lighter outline-none",
-    "font-heading font-medium transition-all",
+    "font-heading font-medium",
     "disabled:pointer-events-none disabled:opacity-50",
+    // Linear-style transitions: instant in (0ms), 150ms out
+    "[transition:color_0ms,background-color_0ms,border-color_0ms,transform_0ms,box-shadow_0ms]",
+    "hover:[transition:color_150ms,background-color_150ms,border-color_150ms,transform_150ms,box-shadow_150ms]",
     // Svg icons style
     "gap-1.5 [&>svg]:stroke-[1.5] [&>svg]:h-6 [&>svg]:w-6",
   ],

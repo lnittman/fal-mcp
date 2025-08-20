@@ -38,7 +38,7 @@ export function FloatingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <div
         className={cn(
-          "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-4 rounded-[3.75px] transition-all duration-300",
+          "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
           scrolled
             ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
             : "bg-transparent border border-transparent"
@@ -76,8 +76,12 @@ export function FloatingHeader() {
             </nav>
           </div>
 
-          {/* Mobile Hamburger Menu */}
-          <div className="flex md:hidden items-center">
+          {/* Mobile Logo and Hamburger Menu */}
+          <div className="flex md:hidden items-center justify-between w-full">
+            <Link href="/" className="flex items-center">
+              <Logo className="h-5 w-auto text-gray-900" />
+            </Link>
+            
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-2">

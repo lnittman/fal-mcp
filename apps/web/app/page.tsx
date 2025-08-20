@@ -199,7 +199,7 @@ export default function Home() {
             <p className="text-lg text-gray-300 mb-8">
               Access 600+ generative models through a single MCP interface.
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 px-4">
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/docs/tools">
                   Explore Tools
@@ -286,6 +286,16 @@ export default function Home() {
             </div>
           </div>
         </footer>
+        
+        {/* Colored pixel bar decoration */}
+        <div className="h-2 flex w-full">
+          <div className="h-full w-[5%] bg-[#AB77FF]"></div>
+          <div className="h-full w-[40%] bg-[#99EDFF]"></div>
+          <div className="h-full w-[7%] bg-[#AB77FF]"></div>
+          <div className="h-full w-[25%] bg-black"></div>
+          <div className="h-full w-[10%] bg-[#ADFF00]"></div>
+          <div className="h-full w-[13%] bg-[#99EDFF]"></div>
+        </div>
       </div>
     </LenisProvider>
   );

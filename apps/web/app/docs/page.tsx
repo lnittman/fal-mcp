@@ -102,54 +102,28 @@ export default function DocsPage() {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-3">2. Configure your client</h3>
                   <p className="text-gray-600 mb-6">
-                    One-click setup. Works with any MCP client.
+                    Works with any MCP client.
                   </p>
                   
-                  <div className="space-y-6">
-                    {/* Claude Desktop */}
-                    <div className="border border-gray-200 rounded-[3.75px] p-6">
-                      <h4 className="font-medium text-gray-900 mb-2">Claude Desktop</h4>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-[3.75px] font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code>
-                      </p>
-                      <div className="relative">
-                        <pre className="bg-gray-50 p-4 rounded-[3.75px] overflow-x-auto text-xs text-gray-800">
-                          <code>{claudeConfig}</code>
-                        </pre>
-                        <button
-                          onClick={() => copyToClipboard(claudeConfig, 'claude')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
-                        >
-                          {copiedSection === 'claude' ? (
-                            <Check className="h-3.5 w-3.5" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Cursor */}
-                    <div className="border border-gray-200 rounded-[3.75px] p-6">
-                      <h4 className="font-medium text-gray-900 mb-2">Cursor</h4>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-[3.75px] font-mono">~/.cursor/mcp.json</code>
-                      </p>
-                      <div className="relative">
-                        <pre className="bg-gray-50 p-4 rounded-[3.75px] overflow-x-auto text-xs text-gray-800">
-                          <code>{cursorConfig}</code>
-                        </pre>
-                        <button
-                          onClick={() => copyToClipboard(cursorConfig, 'cursor')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
-                        >
-                          {copiedSection === 'cursor' ? (
-                            <Check className="h-3.5 w-3.5" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
+                  <div className="border border-gray-200 rounded-[3.75px] p-6">
+                    <h4 className="font-medium text-gray-900 mb-2">MCP Configuration</h4>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Add to your MCP client's configuration file:
+                    </p>
+                    <div className="relative">
+                      <pre className="bg-gray-50 p-4 rounded-[3.75px] overflow-x-auto text-xs text-gray-800">
+                        <code>{claudeConfig}</code>
+                      </pre>
+                      <button
+                        onClick={() => copyToClipboard(claudeConfig, 'claude')}
+                        className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
+                      >
+                        {copiedSection === 'claude' ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>

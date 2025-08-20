@@ -4,10 +4,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/icons/logo";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { Menu } from "lucide-react";
 
 export function FloatingHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +26,13 @@ export function FloatingHeader() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/docs", label: "Docs" },
+    { href: "/docs/tools", label: "Tools" },
+    { href: "https://github.com/fal-ai/fal-mcp", label: "GitHub", external: true },
+  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
@@ -29,42 +45,95 @@ export function FloatingHeader() {
         )}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
             <Link href="/" className="flex items-center">
               <Logo className="h-5 w-auto text-gray-900" />
             </Link>
             
-            <nav className="hidden md:flex items-center gap-6">
-              <Link
-                href="/"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/docs"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Docs
-              </Link>
-              <Link
-                href="/docs/tools"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Tools
-              </Link>
-              <a
-                href="https://github.com/fal-ai/fal-mcp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                GitHub
-              </a>
+            <nav className="flex items-center gap-6">
+              {navLinks.map((link) => (
+                link.external ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              ))}
             </nav>
           </div>
+
+          {/* Mobile Hamburger Menu */}
+          <div className="flex md:hidden items-center">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="default" size="sm" className="p-2">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                <SheetHeader className="mb-8">
+                  <SheetTitle className="flex items-center">
+                    <Logo className="h-6 w-auto text-gray-900" />
+                  </SheetTitle>
+                </SheetHeader>
+                
+                <nav className="flex flex-col space-y-4">
+                  {navLinks.map((link) => (
+                    link.external ? (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-lg text-gray-600 hover:text-gray-900 transition-colors py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="text-lg text-gray-600 hover:text-gray-900 transition-colors py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    )
+                  ))}
+                </nav>
+                
+                <div className="mt-8 pt-8 border-t">
+                  <Button variant="default" size="lg" asChild className="w-full rounded-sm">
+                    <a
+                      href="https://fal.ai/dashboard/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Get API Key
+                    </a>
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
           
-          <Button variant="default" size="sm" asChild className="rounded-sm">
+          <Button variant="default" size="sm" asChild className="hidden md:inline-flex rounded-sm">
             <a
               href="https://fal.ai/dashboard/keys"
               target="_blank"

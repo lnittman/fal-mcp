@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Copy, Check, ChevronRight, Sparkles, Zap, Wand2 } from "lucide-react";
 import { LenisProvider } from "@/components/lenis-provider";
-import { FalHeroAnimation } from "@fal-mcp/ascii";
+import { FalLogo } from "@fal-mcp/ascii";
 
 export default function Home() {
   const [copiedClient, setCopiedClient] = useState<string | null>(null);
@@ -76,25 +76,13 @@ export default function Home() {
         {/* Hero Section - account for header height and margin */}
         <section className="relative pt-40 pb-24 px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center relative">
-              <FalHeroAnimation 
-                width={120} 
-                height={20} 
-                frameCount={60} 
-                fps={24}
-                style="network"
-                className="text-gray-200/10"
-                containerClassName=""
-              />
-              <div className="relative">
-                <h1 className="text-5xl md:text-7xl font-heading font-light tracking-tight text-gray-900 mb-6">
-                  fal-mcp
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-                  Connect any MCP client to fal.ai's lightning-fast AI models.
-                  Generate images, videos, and audio through natural conversation.
-                </p>
+            <div className="text-center">
+              <div className="flex justify-center mb-8">
+                <FalLogo className="text-6xl md:text-7xl text-gray-900" interval={200} />
               </div>
+              <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+                Connect any MCP client to fal's lightning-fast generative models.
+              </p>
               <div className="flex items-center justify-center gap-4">
                 <Button size="lg" asChild className="rounded-sm">
                   <a
@@ -115,42 +103,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Capabilities Grid */}
-        <section className="py-24 px-8 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-heading font-light text-center mb-16 text-gray-900">
-              Production-ready models, one API call away
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {capabilities.map((capability) => (
-                <div
-                  key={capability.title}
-                  className="bg-white p-8 rounded-sm border border-gray-200 hover:border-gray-300 transition-colors"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-sm bg-gray-100 text-gray-700">
-                      {capability.icon}
-                    </div>
-                    <h3 className="text-xl font-medium text-gray-900">{capability.title}</h3>
-                  </div>
-                  <p className="text-gray-600 mb-4">{capability.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {capability.tools.map((tool) => (
-                      <span
-                        key={tool}
-                        className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded-sm"
-                      >
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Quick Setup */}
+        {/* Quick Setup - no bg-gray-50, straight to content */}
         <section className="py-24 px-8">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-heading font-light text-center mb-16 text-gray-900">

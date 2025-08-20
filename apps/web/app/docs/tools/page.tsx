@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { LenisProvider } from "@/components/lenis-provider";
+import { PixelIcon } from "@/components/pixel-icon";
 
 const tools = [
   // Image Tools
@@ -296,14 +297,20 @@ export default function ToolsPage() {
                 </Button>
                 {categories.map((category) => {
                   const count = tools.filter((t) => t.category === category).length;
+                  const iconVariant = category.toLowerCase().includes("image") ? "image" : 
+                                     category.toLowerCase().includes("video") ? "video" :
+                                     category.toLowerCase().includes("audio") ? "audio" :
+                                     category.toLowerCase().includes("voice") ? "voice" :
+                                     category.toLowerCase().includes("llm") ? "llm" : "default";
                   return (
                     <Button
                       key={category}
                       variant={filter === category ? "default" : "secondary"}
                       size="sm"
                       onClick={() => setFilter(category)}
-                      className="flex-shrink-0"
+                      className="flex-shrink-0 gap-1.5"
                     >
+                      <PixelIcon variant={iconVariant} className="w-3 h-3" />
                       {category} ({count})
                     </Button>
                   );

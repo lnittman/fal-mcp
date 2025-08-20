@@ -69,7 +69,7 @@ export default function Home() {
         <FloatingHeader />
         
         {/* Hero Section - account for header height and margin */}
-        <section className="relative pt-40 pb-24 px-6">
+        <section className="relative pt-40 pb-24 px-8 md:px-12">
           <div className="max-w-5xl mx-auto">
             <div className="text-center">
               <div className="flex justify-center mb-8">
@@ -79,7 +79,7 @@ export default function Home() {
                 Connect any MCP client to fal's lightning-fast generative models.
               </p>
               <div className="flex items-center justify-center gap-4">
-                <Button size="lg" asChild className="rounded-sm">
+                <Button size="lg" asChild className="rounded-[3.75px]">
                   <a
                     href="https://fal.ai/dashboard/keys"
                     target="_blank"
@@ -88,7 +88,7 @@ export default function Home() {
                     Get Started
                   </a>
                 </Button>
-                <Button variant="secondary" size="lg" asChild className="rounded-sm">
+                <Button variant="secondary" size="lg" asChild className="rounded-[3.75px]">
                   <Link href="/docs">
                     Documentation
                   </Link>
@@ -99,7 +99,7 @@ export default function Home() {
         </section>
 
         {/* Quick Setup - no bg-gray-50, straight to content */}
-        <section className="py-24 px-8">
+        <section className="py-24 px-8 md:px-12">
           <div className="max-w-3xl mx-auto">
             
             <div className="space-y-12">
@@ -191,7 +191,7 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 px-6 bg-gray-900 text-white">
+        <section className="py-24 px-8 md:px-12 bg-gray-900 text-white">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-heading font-light mb-6">
               The fastest inference platform on the planet

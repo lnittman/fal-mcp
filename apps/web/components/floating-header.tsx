@@ -38,7 +38,7 @@ export function FloatingHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <div
         className={cn(
-          "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-4 rounded-sm transition-all duration-300",
+          "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-4 rounded-[3.75px] transition-all duration-300",
           scrolled
             ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
             : "bg-transparent border border-transparent"
@@ -80,7 +80,7 @@ export function FloatingHeader() {
           <div className="flex md:hidden items-center">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="default" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>

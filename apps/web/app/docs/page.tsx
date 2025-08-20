@@ -107,13 +107,13 @@ export default function DocsPage() {
                   
                   <div className="space-y-6">
                     {/* Claude Desktop */}
-                    <div className="border border-gray-200 rounded-sm p-6">
+                    <div className="border border-gray-200 rounded-[3.75px] p-6">
                       <h4 className="font-medium text-gray-900 mb-2">Claude Desktop</h4>
                       <p className="text-sm text-gray-600 mb-3">
-                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-sm font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code>
+                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-[3.75px] font-mono">~/Library/Application Support/Claude/claude_desktop_config.json</code>
                       </p>
                       <div className="relative">
-                        <pre className="bg-gray-50 p-4 rounded-sm overflow-x-auto text-xs text-gray-800">
+                        <pre className="bg-gray-50 p-4 rounded-[3.75px] overflow-x-auto text-xs text-gray-800">
                           <code>{claudeConfig}</code>
                         </pre>
                         <button
@@ -130,13 +130,13 @@ export default function DocsPage() {
                     </div>
 
                     {/* Cursor */}
-                    <div className="border border-gray-200 rounded-sm p-6">
+                    <div className="border border-gray-200 rounded-[3.75px] p-6">
                       <h4 className="font-medium text-gray-900 mb-2">Cursor</h4>
                       <p className="text-sm text-gray-600 mb-3">
-                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-sm font-mono">~/.cursor/mcp.json</code>
+                        Add to: <code className="text-xs bg-gray-100 px-2 py-1 rounded-[3.75px] font-mono">~/.cursor/mcp.json</code>
                       </p>
                       <div className="relative">
-                        <pre className="bg-gray-50 p-4 rounded-sm overflow-x-auto text-xs text-gray-800">
+                        <pre className="bg-gray-50 p-4 rounded-[3.75px] overflow-x-auto text-xs text-gray-800">
                           <code>{cursorConfig}</code>
                         </pre>
                         <button
@@ -160,7 +160,7 @@ export default function DocsPage() {
                   <p className="text-gray-600 mb-3">
                     Natural language. Lightning-fast inference. Zero MLOps:
                   </p>
-                  <div className="bg-gray-100 p-4 rounded-sm">
+                  <div className="bg-gray-100 p-4 rounded-[3.75px]">
                     <p className="text-sm font-mono text-gray-800">
                       "Generate a product photo using FLUX Pro"
                     </p>
@@ -178,7 +178,7 @@ export default function DocsPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {toolCategories.map((category) => (
-                  <div key={category.title} className="border border-gray-200 rounded-sm p-6 hover:border-gray-300 [transition:border-color_0ms] hover:[transition:border-color_150ms]">
+                  <div key={category.title} className="border border-gray-200 rounded-[3.75px] p-6 hover:border-gray-300 [transition:border-color_0ms] hover:[transition:border-color_150ms]">
                     <h3 className="font-medium text-gray-900 mb-3">{category.title}</h3>
                     <ul className="space-y-2">
                       {category.tools.map((tool) => (
@@ -192,7 +192,7 @@ export default function DocsPage() {
               </div>
 
               <Link href="/docs/tools">
-                <Button variant="default" size="sm" className="rounded-sm">
+                <Button variant="default" size="sm" className="rounded-[3.75px]">
                   Explore all models <ChevronRight className="ml-1 h-3 w-3" />
                 </Button>
               </Link>

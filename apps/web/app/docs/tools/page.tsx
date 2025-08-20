@@ -270,27 +270,27 @@ export default function ToolsPage() {
             </p>
 
             {/* Filters - Horizontal scroll on mobile */}
-            <div className="relative mb-8">
+            <div className="relative mb-8 -mx-6">
               {/* Left fade indicator */}
               {canScrollLeft && (
-                <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-12 bg-gradient-to-r from-white to-transparent lg:hidden" />
+                <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent lg:hidden" />
               )}
               
               {/* Right fade indicator */}
               {canScrollRight && (
-                <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent lg:hidden" />
+                <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent lg:hidden" />
               )}
               
               <div 
                 ref={scrollContainerRef}
-                className="flex items-center gap-3 overflow-x-auto lg:flex-wrap scrollbar-none"
+                className="flex items-center gap-3 overflow-x-auto lg:flex-wrap scrollbar-none pl-6 lg:px-6"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 <Button
                   variant={filter === "all" ? "default" : "secondary"}
                   size="sm"
                   onClick={() => setFilter("all")}
-                  className="rounded-sm flex-shrink-0"
+                  className="flex-shrink-0"
                 >
                   All ({tools.length})
                 </Button>
@@ -302,7 +302,7 @@ export default function ToolsPage() {
                       variant={filter === category ? "default" : "secondary"}
                       size="sm"
                       onClick={() => setFilter(category)}
-                      className="rounded-sm flex-shrink-0"
+                      className="flex-shrink-0"
                     >
                       {category} ({count})
                     </Button>
@@ -318,13 +318,13 @@ export default function ToolsPage() {
                 placeholder="Search tools..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pr-16 text-base md:text-sm rounded-sm bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-3 pr-16 text-base md:text-sm rounded-[0.25rem] bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-gray-900 placeholder-gray-500"
                 style={{ fontSize: '16px' }} // Prevent zoom on iOS
               />
               {searchQuery && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-mono bg-gray-200 text-gray-700 rounded hover:bg-gray-300 [transition:background-color_0ms] hover:[transition:background-color_150ms]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-mono bg-gray-200 text-gray-700 rounded-[0.25rem] hover:bg-gray-300 transition-colors duration-150"
                 >
                   ESC
                 </button>
@@ -336,7 +336,7 @@ export default function ToolsPage() {
               {filteredTools.map((tool) => (
                 <div 
                   key={tool.id} 
-                  className="p-6 border border-gray-200 rounded-sm hover:border-gray-300 transition-colors bg-white"
+                  className="p-6 border border-gray-200 rounded-[0.25rem] hover:border-gray-300 transition-colors duration-150 bg-white"
                 >
                   <div className="mb-3">
                     <h3 className="font-mono text-sm font-medium text-gray-900 mb-2">{tool.id}</h3>

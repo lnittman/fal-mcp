@@ -78,7 +78,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <div className="text-center">
               <div className="flex justify-center mb-8">
-                <FalLogo className="text-xs md:text-sm text-gray-900" interval={200} />
+                <FalLogo className="text-xs md:text-sm text-gray-900" />
               </div>
               <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
                 Connect any MCP client to fal's lightning-fast generative models.
@@ -152,7 +152,7 @@ export default function Home() {
                       </pre>
                       <button
                         onClick={() => copyToClipboard(config, 'config')}
-                        className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms]"
+                        className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
                       >
                         {copiedClient === 'config' ? (
                           <Check className="h-4 w-4" />

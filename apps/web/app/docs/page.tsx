@@ -118,7 +118,7 @@ export default function DocsPage() {
                         </pre>
                         <button
                           onClick={() => copyToClipboard(claudeConfig, 'claude')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms]"
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
                         >
                           {copiedSection === 'claude' ? (
                             <Check className="h-3.5 w-3.5" />
@@ -141,7 +141,7 @@ export default function DocsPage() {
                         </pre>
                         <button
                           onClick={() => copyToClipboard(cursorConfig, 'cursor')}
-                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms]"
+                          className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 [transition:color_0ms] hover:[transition:color_150ms] [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
                         >
                           {copiedSection === 'cursor' ? (
                             <Check className="h-3.5 w-3.5" />

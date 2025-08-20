@@ -87,7 +87,7 @@ export function FloatingHeader() {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px] flex flex-col">
                 <SheetHeader className="mb-8">
-                  <SheetTitle className="flex justify-end">
+                  <SheetTitle className="flex justify-start">
                     <Logo className="h-6 w-auto text-gray-900" />
                   </SheetTitle>
                 </SheetHeader>

@@ -3,7 +3,7 @@
 import { FloatingHeader } from "@/components/floating-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LenisProvider } from "@/components/lenis-provider";
 
 const tools = [
@@ -216,6 +216,9 @@ const categories = [...new Set(tools.map(t => t.category))].sort();
 export default function ToolsPage() {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const filteredTools = tools.filter(tool => {
     const matchesCategory = filter === "all" || tool.category === filter;
@@ -224,6 +227,34 @@ export default function ToolsPage() {
       tool.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  // Check scroll state for mobile carousel
+  const checkScrollState = () => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    checkScrollState();
+    container.addEventListener('scroll', checkScrollState, { passive: true });
+    
+    return () => container.removeEventListener('scroll', checkScrollState);
+  }, []);
+
+  useEffect(() => {
+    checkScrollState();
+  }, [filter]);
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
 
   return (
     <LenisProvider>
@@ -238,41 +269,66 @@ export default function ToolsPage() {
               Complete list of available fal-mcp tools for AI generation
             </p>
 
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3 mb-8">
-              <Button
-                variant={filter === "all" ? "default" : "secondary"}
-                size="sm"
-                onClick={() => setFilter("all")}
-                className="rounded-sm"
+            {/* Filters - Horizontal scroll on mobile */}
+            <div className="relative mb-8">
+              {/* Left fade indicator */}
+              {canScrollLeft && (
+                <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-12 bg-gradient-to-r from-white to-transparent lg:hidden" />
+              )}
+              
+              {/* Right fade indicator */}
+              {canScrollRight && (
+                <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent lg:hidden" />
+              )}
+              
+              <div 
+                ref={scrollContainerRef}
+                className="flex items-center gap-3 overflow-x-auto lg:flex-wrap scrollbar-none"
+                style={{ scrollBehavior: 'smooth' }}
               >
-                All ({tools.length})
-              </Button>
-              {categories.map((category) => {
-                const count = tools.filter((t) => t.category === category).length;
-                return (
-                  <Button
-                    key={category}
-                    variant={filter === category ? "default" : "secondary"}
-                    size="sm"
-                    onClick={() => setFilter(category)}
-                    className="rounded-sm"
-                  >
-                    {category} ({count})
-                  </Button>
-                );
-              })}
+                <Button
+                  variant={filter === "all" ? "default" : "secondary"}
+                  size="sm"
+                  onClick={() => setFilter("all")}
+                  className="rounded-sm flex-shrink-0"
+                >
+                  All ({tools.length})
+                </Button>
+                {categories.map((category) => {
+                  const count = tools.filter((t) => t.category === category).length;
+                  return (
+                    <Button
+                      key={category}
+                      variant={filter === category ? "default" : "secondary"}
+                      size="sm"
+                      onClick={() => setFilter(category)}
+                      className="rounded-sm flex-shrink-0"
+                    >
+                      {category} ({count})
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Search */}
-            <div className="mb-12">
+            {/* Search - Mobile optimized */}
+            <div className="mb-12 relative">
               <input
                 type="text"
                 placeholder="Search tools..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 text-sm rounded-sm bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-3 pr-16 text-base md:text-sm rounded-sm bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-gray-900 placeholder-gray-500"
+                style={{ fontSize: '16px' }} // Prevent zoom on iOS
               />
+              {searchQuery && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-mono bg-gray-200 text-gray-700 rounded hover:bg-gray-300 [transition:background-color_0ms] hover:[transition:background-color_150ms]"
+                >
+                  ESC
+                </button>
+              )}
             </div>
 
             {/* Tools Grid */}

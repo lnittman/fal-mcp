@@ -13,6 +13,8 @@ const buttonVariants = cva(
     // Linear-style transitions: instant in (0ms), 150ms out
     "[transition:color_0ms,background-color_0ms,border-color_0ms,transform_0ms,box-shadow_0ms]",
     "hover:[transition:color_150ms,background-color_150ms,border-color_150ms,transform_150ms,box-shadow_150ms]",
+    // Prevent mobile long-press bubbles
+    "[-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]",
     // Svg icons style
     "gap-1.5 [&>svg]:stroke-[1.5] [&>svg]:h-6 [&>svg]:w-6",
   ],

@@ -42,14 +42,14 @@ export function FloatingHeader() {
     <>
       <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-6">
         <div
-          className={cn(
-            "mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
-            mobileMenuOpen
-              ? "bg-transparent border border-transparent"
-              : scrolled
-              ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
-              : "bg-transparent border border-transparent"
-          )}
+          className="mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] border"
+          style={{
+            transition: "all 300ms ease-in-out",
+            backgroundColor: mobileMenuOpen ? "transparent" : scrolled ? "rgba(255, 255, 255, 0.8)" : "transparent",
+            borderColor: mobileMenuOpen ? "transparent" : scrolled ? "rgb(229, 231, 235)" : "transparent",
+            backdropFilter: mobileMenuOpen ? "none" : scrolled ? "blur(12px)" : "none",
+            boxShadow: mobileMenuOpen ? "none" : scrolled ? "0 1px 2px 0 rgba(0, 0, 0, 0.05)" : "none",
+          }}
         >
           <div className="flex items-center justify-between">
             {/* Logo - visible on all screens */}

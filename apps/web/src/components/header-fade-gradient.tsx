@@ -9,7 +9,7 @@ export function HeaderFadeGradient() {
     <div 
       className={cn(
         "fixed top-0 left-0 right-0 h-24 pointer-events-none z-30",
-        "bg-gradient-to-b from-white via-white/60 to-transparent"
+        "bg-gradient-to-b from-white/20 via-transparent to-transparent"
       )}
     />
   );

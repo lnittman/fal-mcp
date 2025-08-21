@@ -1,41 +1,51 @@
+import Image from "next/image";
+
 export function DecorativeElements() {
   return (
     <>
-      {/* Left decorative elements */}
-      <div className="pointer-events-none absolute -left-[20px] top-[80px] h-[226px] w-[457px] max-w-[457px] xl:left-0 xl:top-[119px] xl:h-auto opacity-20">
-        <svg viewBox="0 0 457 226" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="457" height="226" fill="url(#grad-left-1)" />
-          <defs>
-            <linearGradient id="grad-left-1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#125DF3" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#6120EE" stopOpacity="0.05" />
-            </linearGradient>
-          </defs>
-        </svg>
+      {/* Left top decorative pixel art - exact from fal.ai */}
+      <div className="pointer-events-none absolute -left-[20px] top-[80px] h-[226px] w-[457px] max-w-[457px] xl:left-0 xl:top-[119px] xl:h-auto z-0">
+        <Image
+          src="/decorative/left-1.webp"
+          alt=""
+          width={457}
+          height={226}
+          className="opacity-70"
+          priority
+        />
       </div>
 
-      {/* Right decorative element */}
-      <div className="pointer-events-none absolute bottom-10 right-10 xl:bottom-[52px] xl:right-[300px] opacity-15">
-        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="60" r="50" stroke="#4A6D03" strokeWidth="1" strokeDasharray="5 5" />
-          <circle cx="60" cy="60" r="30" fill="#F0FAE6" opacity="0.3" />
-        </svg>
+      {/* Right bottom decorative element - exact from fal.ai */}
+      <div className="pointer-events-none absolute bottom-10 right-10 xl:bottom-[52px] xl:right-[300px] z-0">
+        <Image
+          src="/decorative/right-1.svg"
+          alt=""
+          width={120}
+          height={120}
+          className="opacity-60"
+        />
       </div>
 
-      {/* Abstract geometric shapes */}
-      <div className="pointer-events-none absolute left-0 top-[400px] -z-10 h-[277px] w-[404px] max-w-[404px] lg:h-auto opacity-10">
-        <svg viewBox="0 0 404 277" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 0L404 0L202 277Z" fill="#D23768" opacity="0.1" />
-          <rect x="100" y="50" width="100" height="100" fill="#FEF0F5" opacity="0.5" />
-        </svg>
+      {/* Left middle decorative - mix-blend-multiply for subtle overlay */}
+      <div className="pointer-events-none absolute top-[300px] -left-10 z-10 h-[534px] mix-blend-multiply lg:h-auto">
+        <Image
+          src="/decorative/left-3.svg"
+          alt=""
+          width={300}
+          height={534}
+          className="opacity-30"
+        />
       </div>
 
-      {/* Floating circles */}
-      <div className="pointer-events-none absolute -right-[100px] top-[200px] opacity-20">
-        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="80" fill="#D6EFFF" />
-          <circle cx="120" cy="120" r="40" fill="#125DF3" opacity="0.2" />
-        </svg>
+      {/* Top edge decorative */}
+      <div className="pointer-events-none absolute -top-[220px] left-0 z-10 hidden h-[555px] lg:block xl:-top-[30px]">
+        <Image
+          src="/decorative/left-6.svg"
+          alt=""
+          width={269}
+          height={555}
+          className="opacity-20"
+        />
       </div>
     </>
   );
@@ -44,9 +54,31 @@ export function DecorativeElements() {
 export function QuickStartDecorative() {
   return (
     <>
-      {/* Animated gradient orbs */}
-      <div className="pointer-events-none absolute -left-20 top-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-gradient-to-br from-purple-400/10 to-blue-400/10 blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute -right-20 top-1/3 w-32 h-32 rounded-full bg-gradient-to-br from-green-400/10 to-yellow-400/10 blur-3xl animate-pulse animation-delay-2000" />
+      {/* Left decorative SVG with abstract shapes */}
+      <div className="pointer-events-none absolute -left-10 top-[100px] -z-10 hidden lg:block">
+        <Image
+          src="/decorative/left-2.svg"
+          alt=""
+          width={269}
+          height={208}
+          className="opacity-40"
+        />
+      </div>
+
+      {/* Right side decorative */}
+      <div className="pointer-events-none absolute -right-20 top-[200px] -z-10 h-[277px] w-[404px] max-w-[404px] lg:h-auto">
+        <Image
+          src="/decorative/right-5.svg"
+          alt=""
+          width={404}
+          height={277}
+          className="opacity-30"
+        />
+      </div>
+
+      {/* Subtle gradient orbs for additional depth */}
+      <div className="pointer-events-none absolute -left-40 top-1/2 -translate-y-1/2 w-60 h-60 rounded-full bg-gradient-to-br from-purple-400/5 to-blue-400/5 blur-3xl animate-pulse" />
+      <div className="pointer-events-none absolute -right-40 top-1/3 w-48 h-48 rounded-full bg-gradient-to-br from-green-400/5 to-yellow-400/5 blur-3xl animate-pulse animation-delay-2000" />
     </>
   );
 }
@@ -66,7 +98,18 @@ export function CTADecorative() {
         </svg>
       </div>
 
-      {/* Floating shapes */}
+      {/* Left decorative element */}
+      <div className="pointer-events-none absolute left-[181px] top-[20px] z-10 hidden lg:h-auto xl:block">
+        <Image
+          src="/decorative/left-4.svg"
+          alt=""
+          width={100}
+          height={100}
+          className="opacity-20"
+        />
+      </div>
+
+      {/* Floating pixel art shapes */}
       <div className="pointer-events-none absolute left-10 bottom-10 w-20 h-20">
         <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="10" y="10" width="60" height="60" stroke="white" strokeWidth="1" opacity="0.2" transform="rotate(45 40 40)" />

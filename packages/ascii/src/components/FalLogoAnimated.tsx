@@ -17,96 +17,45 @@ const ASCII_LOGO = `  ▄████  ▄▄▄       ██▓        ██�
   ░ ░      ░   ▒     ░ ░      ░      ░   ░        ░░       
                ░  ░    ░  ░          ░   ░ ░               `;
 
-// fal.ai brand color palettes
-const colorPalettes = [
-  // Default gray
-  { 
-    name: "default",
-    className: "text-gray-900",
-    glow: "0 0 20px rgba(17, 24, 39, 0.2)"
-  },
-  // Sky blue (image-to-video, image-to-image)
-  { 
-    name: "sky",
-    className: "text-[#125DF3]",
-    glow: "0 0 20px rgba(18, 93, 243, 0.3)"
-  },
-  // Purple (text-to-video, text-to-image)
-  { 
-    name: "purple",
-    className: "text-[#6120EE]",
-    glow: "0 0 20px rgba(97, 32, 238, 0.3)"
-  },
-  // Green (video-to-video)
-  { 
-    name: "green",
-    className: "text-[#4A6D03]",
-    glow: "0 0 20px rgba(74, 109, 3, 0.3)"
-  },
-  // Rose (training)
-  { 
-    name: "rose",
-    className: "text-[#D23768]",
-    glow: "0 0 20px rgba(210, 55, 104, 0.3)"
-  },
+// fal.ai brand colors
+const colors = [
+  "#125DF3", // Sky blue
+  "#6120EE", // Purple
+  "#4A6D03", // Green
+  "#D23768", // Rose
 ];
 
 export function FalLogoAnimated({ className = "", onClick }: FalLogoAnimatedProps) {
-  const [currentPalette, setCurrentPalette] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  // Initialize with a random color on mount
+  const [currentColor, setCurrentColor] = useState<string>(() => {
+    if (typeof window === 'undefined') return colors[0];
+    return colors[Math.floor(Math.random() * colors.length)];
+  });
 
   const handleClick = () => {
-    if (!isAnimating) {
-      setIsAnimating(true);
-      const nextPalette = (currentPalette + 1) % colorPalettes.length;
-      
-      // Animate through colors quickly then settle
-      let cycleCount = 0;
-      const cycleInterval = setInterval(() => {
-        cycleCount++;
-        setCurrentPalette(prev => (prev + 1) % colorPalettes.length);
-        
-        if (cycleCount >= colorPalettes.length * 2) {
-          clearInterval(cycleInterval);
-          setCurrentPalette(nextPalette);
-          setIsAnimating(false);
-        }
-      }, 100);
+    // Trigger haptic feedback if available
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(10); // Short 10ms haptic tap
     }
+    
+    // Get a different random color
+    const availableColors = colors.filter(c => c !== currentColor);
+    const newColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+    setCurrentColor(newColor);
     
     onClick?.();
   };
 
-  // Auto cycle colors on hover
-  useEffect(() => {
-    if (isHovered && !isAnimating) {
-      const interval = setInterval(() => {
-        setCurrentPalette(prev => (prev + 1) % colorPalettes.length);
-      }, 500);
-      
-      return () => clearInterval(interval);
-    }
-  }, [isHovered, isAnimating]);
-
-  const palette = colorPalettes[currentPalette];
-
   return (
     <pre
-      className={`font-mono select-none cursor-pointer transition-all duration-300 ${palette.className} ${className} ${
-        isAnimating ? 'animate-pulse' : ''
-      }`}
+      className={`font-mono select-none cursor-pointer ${className}`}
       style={{
         whiteSpace: "pre",
         lineHeight: "1",
         letterSpacing: "-0.05em",
-        textShadow: palette.glow,
-        transform: isHovered ? "scale(1.02)" : "scale(1)",
-        transition: "all 0.3s ease",
+        color: currentColor,
       }}
       onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {ASCII_LOGO}
     </pre>

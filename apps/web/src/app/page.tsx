@@ -73,13 +73,13 @@ export default function Home() {
           <div className="max-w-3xl mx-auto">
             <div className="text-center">
               <div className="flex justify-center mb-8">
-                <FalLogoAnimated className="text-xs md:text-sm" />
+                <FalLogoAnimated className="text-[0.5rem] md:text-xs" />
               </div>
               <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
                 Connect any MCP client to lightning-fast generative models.
               </p>
-              <div className="flex items-center justify-center gap-4">
-                <Button size="lg" asChild className="rounded-[3.75px]">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 px-6 sm:px-0">
+                <Button size="default" asChild className="rounded-[3.75px] w-full sm:w-auto">
                   <a
                     href="https://fal.ai/dashboard/keys"
                     target="_blank"
@@ -88,7 +88,7 @@ export default function Home() {
                     Get Started
                   </a>
                 </Button>
-                <Button variant="secondary" size="lg" asChild className="rounded-[3.75px]">
+                <Button variant="secondary" size="default" asChild className="rounded-[3.75px] w-full sm:w-auto">
                   <Link href="/docs">
                     Documentation
                   </Link>
@@ -190,13 +190,13 @@ export default function Home() {
             <p className="text-lg text-gray-300 mb-8">
               Access 600+ generative models through a single MCP interface.
             </p>
-            <div className="flex items-center justify-center gap-4 px-4">
-              <Button size="lg" variant="secondary" asChild>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 px-6 sm:px-4">
+              <Button size="default" variant="secondary" asChild className="w-full sm:w-auto">
                 <Link href="/docs/tools">
                   Explore Tools
                 </Link>
               </Button>
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="default" variant="secondary" asChild className="w-full sm:w-auto">
                 <a
                   href="https://github.com/fal-ai/fal-mcp"
                   target="_blank"

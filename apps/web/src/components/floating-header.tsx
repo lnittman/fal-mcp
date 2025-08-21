@@ -13,12 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Menu, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { MobileMenuOverlay } from "./mobile-menu-overlay";
+import { useAtom } from "jotai";
+import { isMobileMenuOpenAtom } from "@/atoms/mobile-menu";
 
 export function FloatingHeader() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useAtom(isMobileMenuOpenAtom);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,7 +44,7 @@ export function FloatingHeader() {
         <div
           className={cn(
             "mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
-            scrolled
+            scrolled && !mobileMenuOpen
               ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
               : "bg-transparent border border-transparent"
           )}
@@ -100,13 +102,26 @@ export function FloatingHeader() {
               </DropdownMenu>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Hamburger to X animation */}
             <button
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors duration-150"
-              aria-label="Open menu"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
-              <Menu className="h-5 w-5" />
+              <div className="relative h-5 w-5">
+                <span 
+                  className={cn(
+                    "absolute left-0 top-[7px] h-[2px] w-5 bg-current transition-all duration-300",
+                    mobileMenuOpen && "rotate-45 top-[9px]"
+                  )} 
+                />
+                <span 
+                  className={cn(
+                    "absolute left-0 bottom-[7px] h-[2px] w-5 bg-current transition-all duration-300",
+                    mobileMenuOpen && "-rotate-45 bottom-[9px]"
+                  )} 
+                />
+              </div>
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { MotionProvider } from "./providers/motion-provider";
 import { focal, hal, halMono, commitMono } from "@/lib/fonts";
 import { HeaderFadeGradient } from "@/components/header-fade-gradient";
 import { Footer } from "@/components/footer";
+import { MobileBlurOverlay } from "@/components/mobile-blur-overlay";
 
 export const metadata: Metadata = {
   title: "fal-mcp | Lightning-fast AI through natural language",
@@ -83,6 +84,7 @@ export default function RootLayout({
       <body className="font-sans bg-background text-foreground min-h-screen flex flex-col">
         <HeaderFadeGradient />
         <MotionProvider>
+          <MobileBlurOverlay />
           <div className="flex-1">
             {children}
           </div>

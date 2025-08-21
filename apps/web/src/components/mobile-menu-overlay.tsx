@@ -3,9 +3,9 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Logo } from "@/components/icons/logo";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { useAtom } from "jotai";
+import { isMobileMenuOpenAtom } from "@/atoms/mobile-menu";
 
 interface MobileMenuOverlayProps {
   isOpen: boolean;
@@ -13,6 +13,13 @@ interface MobileMenuOverlayProps {
 }
 
 export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
+  const [, setGlobalMenuOpen] = useAtom(isMobileMenuOpenAtom);
+
+  // Sync with global state
+  useEffect(() => {
+    setGlobalMenuOpen(isOpen);
+  }, [isOpen, setGlobalMenuOpen]);
+
   // Close on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -49,35 +56,23 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Full page overlay with fixed height */}
+          {/* Full page overlay with no Y animations */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-white md:hidden flex flex-col"
+            className="fixed inset-0 z-[95] bg-white md:hidden flex flex-col"
           >
-            {/* Header with close button */}
-            <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 flex-shrink-0">
-              <Link href="/" onClick={onClose}>
-                <Logo className="h-5 w-auto text-gray-900" />
-              </Link>
-              
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-600 hover:text-gray-900 transition-colors duration-150"
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            {/* Spacer for header height */}
+            <div className="h-20 flex-shrink-0" />
 
-            {/* Menu content with proper overflow handling */}
+            {/* Menu content with only opacity animation */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: 0.1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut", delay: 0.1 }}
               className="flex-1 flex flex-col px-6 py-8 overflow-y-auto"
             >
               {/* Navigation links */}
@@ -107,7 +102,7 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
                 ))}
               </nav>
 
-              {/* API key button at the bottom of the flex container */}
+              {/* API key button at the bottom */}
               <div className="mt-12">
                 <Button variant="default" size="lg" asChild className="w-full">
                   <a

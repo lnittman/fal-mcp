@@ -29,5 +29,8 @@
   "packageManager": "bun@1.1.42",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "jotai": "^2.13.1"
   }
 }

@@ -57,7 +57,7 @@ export function Footer() {
           </div>
 
           {/* Bottom section */}
-          <div className="pt-8 border-t border-[rgba(22,22,24,0.1)] relative">
+          <div className="pt-8 relative">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div>
                 <p className="text-sm">features and labels, 2025. All Rights Reserved.</p>

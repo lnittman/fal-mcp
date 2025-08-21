@@ -13,6 +13,7 @@ const tools = [
     id: "textToImage",
     name: "Text to Image",
     category: "Image",
+    modelType: "text-to-image",
     description: "Generate images from text descriptions using any fal.ai model",
     modelSupport: "All image generation models",
   },
@@ -20,6 +21,7 @@ const tools = [
     id: "imageToImage",
     name: "Image to Image",
     category: "Image",
+    modelType: "image-to-image",
     description: "Transform images using AI-powered style transfer and editing",
     modelSupport: "Style transfer & editing models",
   },
@@ -27,6 +29,7 @@ const tools = [
     id: "backgroundRemoval",
     name: "Background Removal",
     category: "Image",
+    modelType: "image-to-image",
     description: "Remove backgrounds from images with precision",
     modelSupport: "Background removal models",
   },
@@ -34,6 +37,7 @@ const tools = [
     id: "objectRemoval",
     name: "Object Removal",
     category: "Image",
+    modelType: "image-to-image",
     description: "AI-powered inpainting to remove unwanted objects",
     modelSupport: "Inpainting models",
   },
@@ -41,6 +45,7 @@ const tools = [
     id: "upscaleImage",
     name: "Image Upscaling",
     category: "Image",
+    modelType: "image-to-image",
     description: "Enhance image resolution with AI super-resolution",
     modelSupport: "Upscaling models",
   },
@@ -48,6 +53,7 @@ const tools = [
     id: "batchBackgroundRemoval",
     name: "Batch Background Removal",
     category: "Image",
+    modelType: "image-to-image",
     description: "Remove backgrounds from multiple images at once",
     modelSupport: "Background removal models",
   },
@@ -55,6 +61,7 @@ const tools = [
     id: "batchProcessImages",
     name: "Batch Process Images",
     category: "Image",
+    modelType: "image-to-image",
     description: "Apply transformations to entire directories",
     modelSupport: "All image models",
   },
@@ -62,6 +69,7 @@ const tools = [
     id: "imageToJson",
     name: "Image to JSON",
     category: "Image",
+    modelType: "image-to-image",
     description: "Extract structured data from images using vision models",
     modelSupport: "Vision models",
   },
@@ -69,6 +77,7 @@ const tools = [
     id: "saveImage",
     name: "Save Image",
     category: "Utilities",
+    modelType: null,
     description: "Download and save images from URLs",
     modelSupport: "N/A",
   },
@@ -78,6 +87,7 @@ const tools = [
     id: "textToVideo",
     name: "Text to Video",
     category: "Video",
+    modelType: "text-to-video",
     description: "Generate videos from text descriptions",
     modelSupport: "Video generation models",
   },
@@ -85,6 +95,7 @@ const tools = [
     id: "imageToVideo",
     name: "Image to Video",
     category: "Video",
+    modelType: "image-to-video",
     description: "Animate static images into dynamic videos",
     modelSupport: "Image animation models",
   },
@@ -94,6 +105,7 @@ const tools = [
     id: "textToSpeech",
     name: "Text to Speech",
     category: "Audio",
+    modelType: "text-to-audio",
     description: "Natural voice synthesis in multiple languages",
     modelSupport: "TTS models",
   },
@@ -101,6 +113,7 @@ const tools = [
     id: "speechToText",
     name: "Speech to Text",
     category: "Audio",
+    modelType: "audio-to-text",
     description: "Transcribe audio to text in 100+ languages",
     modelSupport: "Whisper & transcription models",
   },
@@ -108,6 +121,7 @@ const tools = [
     id: "textToAudio",
     name: "Text to Audio",
     category: "Audio",
+    modelType: "text-to-audio",
     description: "Generate music and sound effects from descriptions",
     modelSupport: "Audio generation models",
   },
@@ -115,6 +129,7 @@ const tools = [
     id: "audioToAudio",
     name: "Audio to Audio",
     category: "Audio",
+    modelType: "audio-to-audio",
     description: "Transform and edit audio files with AI",
     modelSupport: "Audio processing models",
   },
@@ -124,6 +139,7 @@ const tools = [
     id: "discoverModelsDynamic",
     name: "Discover Models",
     category: "Discovery",
+    modelType: null,
     description: "Explore available fal.ai models dynamically",
     modelSupport: "All models",
   },
@@ -131,6 +147,7 @@ const tools = [
     id: "listModelsDynamic",
     name: "List Models",
     category: "Discovery",
+    modelType: null,
     description: "Get categorized lists of available models",
     modelSupport: "All models",
   },
@@ -138,6 +155,7 @@ const tools = [
     id: "recommendModel",
     name: "Recommend Model",
     category: "Discovery",
+    modelType: null,
     description: "Get AI recommendations for your use case",
     modelSupport: "All models",
   },
@@ -145,6 +163,7 @@ const tools = [
     id: "modelDocs",
     name: "Model Documentation",
     category: "Discovery",
+    modelType: null,
     description: "Get detailed documentation for specific models",
     modelSupport: "All models",
   },
@@ -154,6 +173,7 @@ const tools = [
     id: "workflowChain",
     name: "Workflow Chain",
     category: "Workflows",
+    modelType: null,
     description: "Chain multiple operations into complex pipelines",
     modelSupport: "All models",
   },
@@ -161,6 +181,7 @@ const tools = [
     id: "enhancePrompt",
     name: "Enhance Prompt",
     category: "Utilities",
+    modelType: null,
     description: "Optimize prompts for better model results",
     modelSupport: "LLM models",
   },
@@ -168,6 +189,7 @@ const tools = [
     id: "courseModels",
     name: "Course Models",
     category: "Learning",
+    modelType: "training",
     description: "Interactive guided tour of fal.ai capabilities",
     modelSupport: "All models",
   },
@@ -175,6 +197,7 @@ const tools = [
     id: "getSystemInstructions",
     name: "System Instructions",
     category: "Utilities",
+    modelType: null,
     description: "Get comprehensive tool documentation",
     modelSupport: "N/A",
   },
@@ -184,6 +207,7 @@ const tools = [
     id: "uploadFile",
     name: "Upload File",
     category: "Files",
+    modelType: null,
     description: "Upload local files to fal.ai storage",
     modelSupport: "N/A",
   },
@@ -191,6 +215,7 @@ const tools = [
     id: "downloadFile",
     name: "Download File",
     category: "Files",
+    modelType: null,
     description: "Download files from URLs to local storage",
     modelSupport: "N/A",
   },
@@ -200,6 +225,7 @@ const tools = [
     id: "textToImageStyled",
     name: "Text to Image (Styled)",
     category: "Image",
+    modelType: "text-to-image",
     description: "Generate images with style exploration features",
     modelSupport: "Style-aware models",
   },
@@ -207,12 +233,34 @@ const tools = [
     id: "jsonTools",
     name: "JSON Tools",
     category: "Utilities",
+    modelType: null,
     description: "Utilities for working with JSON data",
     modelSupport: "N/A",
   },
 ];
 
 const categories = [...new Set(tools.map(t => t.category))].sort();
+
+// Model type color mapping based on fal.ai brand colors
+const getModelTypeStyles = (modelType: string | null) => {
+  if (!modelType) return null;
+  
+  const styles: Record<string, { bg: string; text: string; border: string }> = {
+    'text-to-image': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'image-to-image': { bg: 'bg-fal-sky-background', text: 'text-fal-sky-foreground', border: 'border-fal-sky-foreground/20' },
+    'text-to-video': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'image-to-video': { bg: 'bg-fal-sky-background', text: 'text-fal-sky-foreground', border: 'border-fal-sky-foreground/20' },
+    'video-to-video': { bg: 'bg-fal-green-background', text: 'text-fal-green-foreground', border: 'border-fal-green-foreground/20' },
+    'text-to-audio': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'audio-to-audio': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'audio-to-text': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'audio-to-video': { bg: 'bg-fal-purple-background', text: 'text-fal-purple-foreground', border: 'border-fal-purple-foreground/20' },
+    'video-to-audio': { bg: 'bg-fal-green-background', text: 'text-fal-green-foreground', border: 'border-fal-green-foreground/20' },
+    'training': { bg: 'bg-fal-rose-background', text: 'text-fal-rose-foreground', border: 'border-fal-rose-foreground/20' },
+  };
+  
+  return styles[modelType] || null;
+};
 
 export default function ToolsPage() {
   const [filter, setFilter] = useState<string>("all");
@@ -302,13 +350,24 @@ export default function ToolsPage() {
                                      category.toLowerCase().includes("audio") ? "audio" :
                                      category.toLowerCase().includes("voice") ? "voice" :
                                      category.toLowerCase().includes("llm") ? "llm" : "default";
+                  
+                  // Get category color based on most common model type
+                  const categoryTools = tools.filter(t => t.category === category);
+                  const modelTypes = categoryTools.map(t => t.modelType).filter(Boolean);
+                  const mostCommonType = modelTypes.length > 0 ? modelTypes[0] : null;
+                  const categoryStyles = mostCommonType ? getModelTypeStyles(mostCommonType) : null;
+                  
                   return (
                     <Button
                       key={category}
                       variant={filter === category ? "default" : "secondary"}
                       size="sm"
                       onClick={() => setFilter(category)}
-                      className="flex-shrink-0 gap-1.5"
+                      className={`flex-shrink-0 gap-1.5 ${
+                        filter === category && categoryStyles
+                          ? `${categoryStyles.bg} ${categoryStyles.text} hover:opacity-90 border ${categoryStyles.border}`
+                          : ''
+                      }`}
                     >
                       <PixelIcon variant={iconVariant} className="w-3 h-3" />
                       {category} ({count})
@@ -347,9 +406,19 @@ export default function ToolsPage() {
                 >
                   <div className="mb-3">
                     <h3 className="font-mono text-sm font-medium text-gray-900 mb-2">{tool.id}</h3>
-                    <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
-                      {tool.category}
-                    </Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {tool.modelType && (() => {
+                        const styles = getModelTypeStyles(tool.modelType);
+                        return styles ? (
+                          <span className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-[3.75px] border ${styles.bg} ${styles.text} ${styles.border}`}>
+                            {tool.modelType}
+                          </span>
+                        ) : null;
+                      })()}
+                      <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
+                        {tool.category}
+                      </Badge>
+                    </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{tool.description}</p>
                   <p className="text-xs text-gray-500">

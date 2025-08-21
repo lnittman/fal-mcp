@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@source "../src/**/*.{ts,tsx}";
+
+/* Custom CSS variables */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 10% 3.9%;
+  --radius: 0.25rem;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  
+  /* fal.ai brand colors for model type badges */
+  --fal-sky-foreground: #125DF3;
+  --fal-sky-background: #D6EFFF;
+  --fal-purple-foreground: #6120EE;
+  --fal-purple-background: #EFEEFC;
+  --fal-green-foreground: #4A6D03;
+  --fal-green-background: #F0FAE6;
+  --fal-rose-foreground: #D23768;
+  --fal-rose-background: #FEF0F5;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Custom utilities for fal.ai colors */
+.text-fal-sky-foreground {
+  color: var(--fal-sky-foreground);
+}
+.bg-fal-sky-background {
+  background-color: var(--fal-sky-background);
+}
+.border-fal-sky-foreground {
+  border-color: var(--fal-sky-foreground);
+}
+
+.text-fal-purple-foreground {
+  color: var(--fal-purple-foreground);
+}
+.bg-fal-purple-background {
+  background-color: var(--fal-purple-background);
+}
+.border-fal-purple-foreground {
+  border-color: var(--fal-purple-foreground);
+}
+
+.text-fal-green-foreground {
+  color: var(--fal-green-foreground);
+}
+.bg-fal-green-background {
+  background-color: var(--fal-green-background);
+}
+.border-fal-green-foreground {
+  border-color: var(--fal-green-foreground);
+}
+
+.text-fal-rose-foreground {
+  color: var(--fal-rose-foreground);
+}
+.bg-fal-rose-background {
+  background-color: var(--fal-rose-background);
+}
+.border-fal-rose-foreground {
+  border-color: var(--fal-rose-foreground);
+}
+
+/* Font Face Declarations */
+@font-face {
+  font-family: 'CX80';
+  src: url('/fonts/cx80/CX80Trial-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CX80';
+  src: url('/fonts/cx80/CX80Trial-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CX80';
+  src: url('/fonts/cx80/CX80Trial-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louize Display';
+  src: url('/fonts/louize/LouizeDisplayTrialCnd-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louize Display';
+  src: url('/fonts/louize/LouizeDisplayTrialCnd-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Louize Display';
+  src: url('/fonts/louize/LouizeDisplayTrialCnd-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom utility for sans font */
+.font-heading {
+  font-family: 'CX80', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-display {
+  font-family: 'Louize Display', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}

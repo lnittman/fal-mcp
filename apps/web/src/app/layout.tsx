@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../styles.css";
 import { MotionProvider } from "./providers/motion-provider";
 import { focal, hal, halMono, commitMono } from "@/lib/fonts";
+import { HeaderFadeGradient } from "@/components/header-fade-gradient";
 
 export const metadata: Metadata = {
   title: "fal-mcp | Lightning-fast AI through natural language",
@@ -76,9 +77,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta name="color-scheme" content="dark" />
+        <meta name="color-scheme" content="light" />
       </head>
       <body className="font-sans bg-background text-foreground min-h-screen">
+        <HeaderFadeGradient />
         <MotionProvider>{children}</MotionProvider>
       </body>
     </html>

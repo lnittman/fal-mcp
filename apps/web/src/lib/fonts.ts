@@ -4,42 +4,42 @@ import localFont from "next/font/local";
 export const focal = localFont({
   src: [
     {
-      path: "../public/fonts/focal/Focal-Light.woff2",
+      path: "../../public/fonts/focal/Focal-Light.woff2",
       weight: "300",
       style: "normal",
     },
     {
-      path: "../public/fonts/focal/Focal-LightItalic.woff2",
+      path: "../../public/fonts/focal/Focal-LightItalic.woff2",
       weight: "300",
       style: "italic",
     },
     {
-      path: "../public/fonts/focal/Focal-Regular.woff2",
+      path: "../../public/fonts/focal/Focal-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../public/fonts/focal/Focal-Italic.woff2",
+      path: "../../public/fonts/focal/Focal-Italic.woff2",
       weight: "400",
       style: "italic",
     },
     {
-      path: "../public/fonts/focal/Focal-Medium.woff2",
+      path: "../../public/fonts/focal/Focal-Medium.woff2",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../public/fonts/focal/Focal-MediumItalic.woff2",
+      path: "../../public/fonts/focal/Focal-MediumItalic.woff2",
       weight: "500",
       style: "italic",
     },
     {
-      path: "../public/fonts/focal/Focal-Bold.woff2",
+      path: "../../public/fonts/focal/Focal-Bold.woff2",
       weight: "700",
       style: "normal",
     },
     {
-      path: "../public/fonts/focal/Focal-BoldItalic.woff2",
+      path: "../../public/fonts/focal/Focal-BoldItalic.woff2",
       weight: "700",
       style: "italic",
     },
@@ -52,12 +52,12 @@ export const focal = localFont({
 export const hal = localFont({
   src: [
     {
-      path: "../public/fonts/hal/HALTimezone-Regular.woff2",
+      path: "../../public/fonts/hal/HALTimezone-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../public/fonts/hal/HALTimezone-Italic.woff2",
+      path: "../../public/fonts/hal/HALTimezone-Italic.woff2",
       weight: "400",
       style: "italic",
     },
@@ -68,7 +68,7 @@ export const hal = localFont({
 
 // HAL Mono Font
 export const halMono = localFont({
-  src: "../public/fonts/hal/HALTimezone-MonoRegular.woff2",
+  src: "../../public/fonts/hal/HALTimezone-MonoRegular.woff2",
   variable: "--font-hal-mono",
   display: "swap",
 });
@@ -77,12 +77,12 @@ export const halMono = localFont({
 export const commitMono = localFont({
   src: [
     {
-      path: "../public/fonts/commit/CommitMono-400-Regular.otf",
+      path: "../../public/fonts/commit/CommitMono-400-Regular.otf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../public/fonts/commit/CommitMono-600-Regular.otf",
+      path: "../../public/fonts/commit/CommitMono-600-Regular.otf",
       weight: "600",
       style: "normal",
     },

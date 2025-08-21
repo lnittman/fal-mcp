@@ -49,16 +49,16 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Full page overlay */}
+          {/* Full page overlay with fixed height */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-white md:hidden"
+            className="fixed inset-0 z-[100] bg-white md:hidden flex flex-col"
           >
             {/* Header with close button */}
-            <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 flex-shrink-0">
               <Link href="/" onClick={onClose}>
                 <Logo className="h-5 w-auto text-gray-900" />
               </Link>
@@ -72,16 +72,16 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
               </button>
             </div>
 
-            {/* Menu content */}
+            {/* Menu content with proper overflow handling */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: 0.1 }}
-              className="px-6 py-8"
+              className="flex-1 flex flex-col px-6 py-8 overflow-y-auto"
             >
               {/* Navigation links */}
-              <nav className="space-y-6 mb-12">
+              <nav className="space-y-6 flex-1">
                 {navLinks.map((link) => (
                   link.external ? (
                     <a
@@ -107,8 +107,8 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
                 ))}
               </nav>
 
-              {/* Bottom-aligned API key button */}
-              <div className="absolute bottom-8 left-6 right-6">
+              {/* API key button at the bottom of the flex container */}
+              <div className="mt-12">
                 <Button variant="default" size="lg" asChild className="w-full">
                   <a
                     href="https://fal.ai/dashboard/keys"

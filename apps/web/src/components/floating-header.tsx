@@ -44,7 +44,9 @@ export function FloatingHeader() {
         <div
           className={cn(
             "mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
-            scrolled && !mobileMenuOpen
+            mobileMenuOpen
+              ? "bg-transparent border border-transparent"
+              : scrolled
               ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
               : "bg-transparent border border-transparent"
           )}

@@ -107,17 +107,16 @@ export default function Home() {
               <div className="relative">
                 <div className="flex-1">
                   <h3 className="text-lg font-medium mb-2 text-gray-900">
-                    <span className="inline-block mr-3 text-sm font-normal text-gray-500">1</span>
-                    Get your API key
+                    1. Get your API key
                   </h3>
-                  <p className="text-gray-600 mb-3 pl-6">
+                  <p className="text-gray-600 mb-3">
                     Create a free account and generate your API key.
                   </p>
                   <a
                     href="https://fal.ai/dashboard/keys"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900 transition-colors duration-150 pl-6"
+                    className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900 transition-colors duration-150"
                   >
                     Get API key <ChevronRight className="ml-1 h-3 w-3" />
                   </a>
@@ -128,14 +127,13 @@ export default function Home() {
               <div className="relative">
                 <div className="flex-1">
                   <h3 className="text-lg font-medium mb-2 text-gray-900">
-                    <span className="inline-block mr-3 text-sm font-normal text-gray-500">2</span>
-                    Configure MCP
+                    2. Configure MCP
                   </h3>
-                  <p className="text-gray-600 mb-4 pl-6">
+                  <p className="text-gray-600 mb-4">
                     Add to your MCP client configuration:
                   </p>
 
-                  <div className="relative mb-6 pl-6">
+                  <div className="relative mb-6">
                     <pre className="bg-gray-100 p-4 rounded-[0.25rem] overflow-x-auto text-xs text-gray-800">
                       <code>{config}</code>
                     </pre>
@@ -151,7 +149,7 @@ export default function Home() {
                     </button>
                   </div>
 
-                  <div className="space-y-3 pl-6">
+                  <div className="space-y-3">
                     {integrations.map((integration) => (
                       <div key={integration.name} className="pl-4 border-l-2 border-gray-200">
                         <p className="font-medium text-gray-900">{integration.name}</p>
@@ -167,13 +165,12 @@ export default function Home() {
               <div className="relative">
                 <div className="flex-1">
                   <h3 className="text-lg font-medium mb-2 text-gray-900">
-                    <span className="inline-block mr-3 text-sm font-normal text-gray-500">3</span>
-                    Start generating
+                    3. Start generating
                   </h3>
-                  <p className="text-gray-600 mb-4 pl-6">
+                  <p className="text-gray-600 mb-4">
                     You're ready to use fal's 600+ models:
                   </p>
-                  <div className="bg-gray-100 p-4 rounded-[0.25rem] ml-6">
+                  <div className="bg-gray-100 p-4 rounded-[0.25rem]">
                     <p className="text-sm font-mono text-gray-800">
                       "Generate an image with FLUX.1 [schnell]"
                     </p>

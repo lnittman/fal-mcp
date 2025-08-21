@@ -38,10 +38,10 @@ export function FloatingHeader() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6">
         <div
           className={cn(
-            "mx-6 md:mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
+            "mx-auto max-w-7xl mt-4 px-4 py-3 rounded-[3.75px] transition-all duration-300",
             scrolled
               ? "bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm"
               : "bg-transparent border border-transparent"
@@ -62,37 +62,36 @@ export function FloatingHeader() {
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 rounded-[3.75px] border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg">
                   {navLinks.map((link, index) => (
                     <React.Fragment key={link.href}>
-                      {index === navLinks.length - 1 && <DropdownMenuSeparator />}
+                      {index === navLinks.length - 1 && <DropdownMenuSeparator className="bg-gray-100" />}
                       {link.external ? (
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
                           <a
                             href={link.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="cursor-pointer"
                           >
                             {link.label}
                           </a>
                         </DropdownMenuItem>
                       ) : (
-                        <DropdownMenuItem asChild>
-                          <Link href={link.href} className="cursor-pointer">
+                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
+                          <Link href={link.href}>
                             {link.label}
                           </Link>
                         </DropdownMenuItem>
                       )}
                     </React.Fragment>
                   ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuSeparator className="bg-gray-100" />
+                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
                     <a
                       href="https://fal.ai/dashboard/keys"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="cursor-pointer font-medium"
+                      className="font-medium"
                     >
                       Get API Key
                     </a>

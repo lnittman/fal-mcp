@@ -224,3 +224,32 @@ body {
 .animation-delay-2000 {
   animation-delay: 2s;
 }
+
+/* Utility class to hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Consistent transition utilities following linear approach */
+/* Main interactivity: 0ms in, 150ms out */
+.transition-interactive {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: linear;
+  transition-duration: 0ms;
+}
+
+.transition-interactive-out {
+  transition-duration: 150ms;
+}
+
+/* Menu items: instant (0ms in, 0ms out) */
+.transition-menu {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity;
+  transition-timing-function: linear;
+  transition-duration: 0ms;
+}

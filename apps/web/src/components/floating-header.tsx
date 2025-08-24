@@ -107,19 +107,19 @@ export function FloatingHeader() {
             {/* Mobile Menu Button - Hamburger to X animation */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors duration-150"
+              className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-interactive hover:transition-interactive-out"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               <div className="relative h-5 w-5">
                 <span 
                   className={cn(
-                    "absolute left-0 top-[7px] h-[2px] w-5 bg-current transition-all duration-300",
+                    "absolute left-0 top-[7px] h-[2px] w-5 bg-current transition-all duration-150 linear",
                     mobileMenuOpen && "rotate-45 top-[9px]"
                   )} 
                 />
                 <span 
                   className={cn(
-                    "absolute left-0 bottom-[7px] h-[2px] w-5 bg-current transition-all duration-300",
+                    "absolute left-0 bottom-[7px] h-[2px] w-5 bg-current transition-all duration-150 linear",
                     mobileMenuOpen && "-rotate-45 bottom-[9px]"
                   )} 
                 />

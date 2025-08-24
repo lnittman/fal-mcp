@@ -10,8 +10,8 @@ const buttonVariants = cva(
     "border outline-none",
     "font-medium",
     "disabled:pointer-events-none disabled:opacity-50",
-    // fal.ai transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1)
-    "transition-all duration-[150ms] ease-[cubic-bezier(0.4,0,0.2,1)]",
+    // fal.ai transition: linear 0ms in, 150ms out
+    "transition-interactive hover:transition-interactive-out",
     // Prevent mobile long-press bubbles
     "[-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]",
     // Svg icons style

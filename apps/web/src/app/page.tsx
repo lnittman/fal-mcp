@@ -5,9 +5,9 @@ import { FloatingHeader } from "@/components/floating-header";
 import Link from "next/link";
 import { useState } from "react";
 import { Copy, Check, ChevronRight, Sparkles, Zap, Wand2 } from "lucide-react";
-import { LenisProvider } from "@/components/lenis-provider";
 import { FalLogoAnimated } from "@fal-mcp/ascii";
-import { DecorativeElements, QuickStartDecorative, CTADecorative, TrustedBySection } from "@/components/decorative-elements";
+import { DecorativeElements, QuickStartDecorative } from "@/components/decorative-elements";
+import { CTADecorative } from "@/components/cta-decorative";
 
 export default function Home() {
   const [copiedClient, setCopiedClient] = useState<string | null>(null);
@@ -65,8 +65,7 @@ export default function Home() {
   ];
 
   return (
-    <LenisProvider>
-      <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
         <FloatingHeader />
 
         {/* Hero Section - account for header height and margin */}
@@ -77,14 +76,6 @@ export default function Home() {
               <div className="flex justify-center mb-12">
                 <FalLogoAnimated className="text-[0.5rem] md:text-xs" />
               </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-medium mb-6 leading-tight" style={{ letterSpacing: '-0.04em' }}>
-                Generative media platform
-                <br />
-                <span className="text-gray-500">for developers.</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-                Connect any MCP client to lightning-fast generative models.
-              </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 px-6 sm:px-0">
                 <Button size="default" asChild className="rounded-[3.75px] w-full sm:w-auto">
                   <a
@@ -104,8 +95,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        <TrustedBySection />
 
         {/* Quick Setup with purple background */}
         <section className="relative py-24 px-6 md:px-8 bg-[#EFEEFC] overflow-hidden">
@@ -149,7 +138,7 @@ export default function Home() {
                     </pre>
                     <button
                       onClick={() => copyToClipboard(config, 'config')}
-                      className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-colors duration-150"
+                      className="absolute top-3 right-3 p-1.5 text-gray-500 hover:text-gray-700 transition-interactive hover:transition-interactive-out"
                     >
                       {copiedClient === 'config' ? (
                         <Check className="h-4 w-4" />
@@ -192,7 +181,7 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="relative py-24 px-6 md:px-8 bg-gray-900 text-white overflow-hidden">
+        <section className="relative py-24 px-6 md:px-8 text-white overflow-hidden">
           <CTADecorative />
           <div className="max-w-3xl mx-auto text-center relative z-10">
             <h2 className="text-3xl font-heading font-light mb-6">
@@ -220,7 +209,6 @@ export default function Home() {
           </div>
         </section>
 
-      </div>
-    </LenisProvider>
+    </div>
   );
 }

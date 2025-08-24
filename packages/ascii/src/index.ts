@@ -1,5 +1,7 @@
 export * from './engine'
 export * from './generators'
 export * from './components'
+export * from './components/FalLogoAnimated'
+export * from './components/Fal3DLogo'
 export * from './hooks'
 export * from './presets'

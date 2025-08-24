@@ -84,7 +84,7 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block text-2xl text-gray-900 hover:text-gray-600 transition-colors duration-150"
+                      className="block text-2xl text-gray-900 hover:text-gray-600 transition-menu"
                       onClick={onClose}
                     >
                       {link.label}
@@ -93,7 +93,7 @@ export function MobileMenuOverlay({ isOpen, onClose }: MobileMenuOverlayProps) {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block text-2xl text-gray-900 hover:text-gray-600 transition-colors duration-150"
+                      className="block text-2xl text-gray-900 hover:text-gray-600 transition-menu"
                       onClick={onClose}
                     >
                       {link.label}

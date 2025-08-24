@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { Copy, Check, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LenisProvider } from "@/components/lenis-provider";
 import { FalHeroAnimation } from "@fal-mcp/ascii";
+import { DocsDecorativeElements } from "@/components/docs-decorative";
 
 export default function DocsPage() {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
@@ -57,9 +57,9 @@ export default function DocsPage() {
   ];
 
   return (
-    <LenisProvider>
-      <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
         <FloatingHeader />
+        <DocsDecorativeElements />
 
         {/* Main content - account for header height and margin */}
         <div className="pt-40 pb-24">
@@ -173,7 +173,6 @@ export default function DocsPage() {
             </section>
           </div>
         </div>
-      </div>
-    </LenisProvider>
+    </div>
   );
 }

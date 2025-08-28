@@ -22,13 +22,16 @@ A production-ready Next.js 15 application featuring:
 ## Development Commands
 ```bash
 # Development
-bun dev           # Start dev server on port 3001
-bun build         # Production build
-bun start         # Run production server
-bun lint          # Biome linting
-bun format        # Auto-format code
-bun typecheck     # TypeScript validation
+```bash
+# Development
+pnpm dev           # Start dev server on port 3001
+pnpm build         # Production build
+pnpm start         # Run production server
+pnpm lint          # Biome linting
+pnpm format        # Auto-format code
+pnpm typecheck     # TypeScript validation
 ```
+
 
 ## Project Structure
 ```
@@ -114,11 +117,11 @@ The app provides copy-paste configs for:
 - **Windsurf**: Modern AI IDE
 
 ## Development Workflow
-1. Start dev server with `bun dev`
+1. Start dev server with `pnpm dev`
 2. Edit components in `components/ui/`
 3. Add new pages in `app/` directory
 4. Test responsive design across breakpoints
-5. Build for production with `bun build`
+5. Build for production with `pnpm build`
 
 ## Performance Optimizations
 - Next.js App Router for optimal loading

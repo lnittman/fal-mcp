@@ -111,7 +111,7 @@ Extends base for Node.js services:
 
 ## Migration Guide
 When adding to existing projects:
-1. Install package: `bun add -D @fal-mcp/typescript-config`
+1. Install package: `pnpm add -D @fal-mcp/typescript-config`
 2. Update tsconfig.json to extend appropriate config
 3. Remove redundant local settings
 4. Fix any new type errors from strict mode

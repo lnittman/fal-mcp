@@ -47,6 +47,7 @@ next-env.d.ts
 
 # Bun
 bun.lockb
+bun.lock
 
 # MCP
 *.tgz

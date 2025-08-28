@@ -379,16 +379,16 @@ export function generateCustomFrames(
 
 ```bash
 # Install dependencies
-bun install
+pnpm install
 
 # Type checking
-bun run typecheck
+pnpm run typecheck
 
 # Linting
-bun run lint
+pnpm run lint
 
 # Format code
-bun run lint:fix
+pnpm run lint:fix
 ```
 
 Remember: ASCII art is about creating beauty from simplicity. Keep animations subtle, meaningful, and performant. The forest doesn't need to be photorealistic - it needs to evoke the feeling of a forest.

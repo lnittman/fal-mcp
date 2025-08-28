@@ -94,9 +94,9 @@ const buttonVariants = cva(
 ## Development Commands
 ```bash
 # Type checking
-bun typecheck     # Validate TypeScript
-bun lint          # Code quality check
-bun format        # Auto-format code
+pnpm typecheck     # Validate TypeScript
+pnpm lint          # Code quality check
+pnpm format        # Auto-format code
 ```
 
 ## Integration Points
